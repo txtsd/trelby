@@ -1,9 +1,9 @@
 import screenplay as scr
 import u
 
-# tests that Screenplay._validate() finds all errors it's supposed to
+# Tests that Screenplay._validate() finds all errors it's supposed to
 
-# helper function that asserts if sp._validate() does not assert
+# Helper function that asserts if sp._validate() does not assert
 def v(sp):
     try:
         sp._validate()

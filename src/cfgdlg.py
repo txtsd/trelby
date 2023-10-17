@@ -10,7 +10,7 @@ import os.path
 
 import wx
 
-# stupid hack to get correct window modality stacking for dialogs
+# Stupid hack to get correct window modality stacking for dialogs
 cfgFrame = None
 
 # WX2.6-FIXME: we can delete this when/if we switch to using wxListBook in
@@ -21,7 +21,7 @@ class MyListBook(wx.ListBox):
 
         self.Bind(wx.EVT_LISTBOX, self.OnPageChange, id=self.GetId())
 
-    # get a list of all the pages
+    # Get a list of all the pages
     def GetPages(self):
         ret = []
 
@@ -33,7 +33,7 @@ class MyListBook(wx.ListBox):
     def AddPage(self, page, name):
         self.Append(name, page)
 
-    # get (w,h) tuple that's big enough to cover all contained pages
+    # Get (w,h) tuple that's big enough to cover all contained pages
     def GetContainingSize(self):
         w, h = 0, 0
 
@@ -44,7 +44,7 @@ class MyListBook(wx.ListBox):
 
         return (w, h)
 
-    # set all page sizes
+    # Set all page sizes
     def SetPageSizes(self, w, h):
         for page in self.GetPages():
             page.SetClientSize(w, h)
@@ -55,8 +55,8 @@ class MyListBook(wx.ListBox):
 
         panel = self.GetClientData(self.GetSelection())
 
-        # newer wxWidgets versions sometimes return None from the above
-        # for some reason when the dialog is closed.
+        # Newer wxWidgets versions sometimes return None from the above for some
+        # reason when the dialog is closed
         if panel is None:
             return
 
@@ -116,8 +116,8 @@ class CfgDlg(wx.Dialog):
 
         self.listbook.SetSelection(0)
 
-        # it's unclear whether SetSelection sends an event on all
-        # platforms or not, so force correct action.
+        # It's unclear whether SetSelection sends an event on all platforms or
+        # not, so force correct action.
         self.listbook.OnPageChange()
 
         vsizer.Add(hsizer, 1, wx.EXPAND)
@@ -151,7 +151,7 @@ class CfgDlg(wx.Dialog):
         p = classObj(self.panel, -1, self.cfg)
         self.listbook.AddPage(p, name)
 
-    # check for errors in each panel
+    # Check for errors in each panel
     def checkForErrors(self):
         for panel in self.listbook.GetPages():
             if hasattr(panel, "checkForErrors"):
@@ -273,8 +273,8 @@ class DisplayPanel(wx.Panel):
     def OnKillFocus(self, event):
         self.OnMisc()
 
-        # if we don't call this, the spin entry on wx.GTK gets stuck in
-        # some weird state
+        # If we don't call this, the spin entry on wx.GTK gets stuck in some
+        # weird state
         event.Skip()
 
     def OnChangeFont(self, event):
@@ -310,7 +310,7 @@ class DisplayPanel(wx.Panel):
     def updateFontLb(self):
         names = ["Normal", "Bold", "Italic", "Bold-Italic"]
 
-        # keep track if all fonts have the same width
+        # Keep track if all fonts have the same width
         widths = set()
 
         for i in range(len(names)):
@@ -435,8 +435,8 @@ class ElementsPanel(wx.Panel):
 
         gsizer = wx.FlexGridSizer(2, 2, 0, 10)
 
-        # wxGTK adds way more space by default than wxMSW between the
-        # items, have to adjust for that
+        # wxGTK adds way more space by default than wxMSW between the items
+        # Have to adjust for that
         pad = 0
         if misc.isWindows:
             pad = 5
@@ -459,8 +459,8 @@ class ElementsPanel(wx.Panel):
     def OnKillFocus(self, event):
         self.OnMisc()
 
-        # if we don't call this, the spin entry on wxGTK gets stuck in
-        # some weird state
+        # If we don't call this, the spin entry on wxGTK gets stuck in some
+        # weird state
         event.Skip()
 
     def OnElementCombo(self, event = None):
@@ -502,8 +502,8 @@ class ElementsPanel(wx.Panel):
         self.exportBoldCb.SetValue(tcfg.export.isBold)
         self.exportUnderlinedCb.SetValue(tcfg.export.isUnderlined)
 
-        # stupid wxwindows/wxpython displays empty box if the initial
-        # value is zero if we don't do this...
+        # Stupid wxwindows/wxpython displays empty box if the initial value is
+        # zero if we don't do this
         self.beforeSpacingEntry.SetValue(5)
         self.intraSpacingEntry.SetValue(5)
         self.indentEntry.SetValue(5)
@@ -662,8 +662,8 @@ class PaperPanel(wx.Panel):
 
         self.linesLabel = wx.StaticText(self, -1, "")
 
-        # wxwindows doesn't recalculate sizer size correctly at startup so
-        # set initial text
+        # wxwindows doesn't recalculate sizer size correctly at startup so set
+        # initial text
         self.setLines()
 
         vsizer.Add(self.linesLabel, 0, wx.TOP, 20)
@@ -840,8 +840,8 @@ class FormattingPanel(wx.Panel):
         self.Bind(wx.EVT_CHECKBOX, self.OnMisc, id=self.scenesCb.GetId())
         vsizer.Add(self.scenesCb, 0, wx.TOP, 10)
 
-        # wxGTK adds way more space by default than wxMSW between the
-        # items, have to adjust for that
+        # wxGTK adds way more space by default than wxMSW between the items
+        # Have to adjust for that
         pad = 0
         if misc.isWindows:
             pad = 10
@@ -869,8 +869,8 @@ class FormattingPanel(wx.Panel):
     def OnKillFocus(self, event):
         self.OnMisc()
 
-        # if we don't call this, the spin entry on wxGTK gets stuck in
-        # some weird state
+        # If we don't call this, the spin entry on wxGTK gets stuck in some
+        # weird state
         event.Skip()
 
     def OnMisc(self, event = None):
@@ -884,8 +884,8 @@ class FormattingPanel(wx.Panel):
         self.cfg.pdfShowLineNumbers = self.lineNumbersCb.GetValue()
 
     def cfg2gui(self):
-        # stupid wxwindows/wxpython displays empty box if the initial
-        # value is zero if we don't do this...
+        # Stupid wxwindows/wxpython displays empty box if the initial value is
+        # zero if we don't do this
         self.actionEntry.SetValue(5)
         self.dialogueEntry.SetValue(5)
         self.sceneContinuedIndentEntry.SetValue(5)
@@ -1075,8 +1075,8 @@ class MiscPanel(wx.Panel):
 
         vsizer.Add(bsizer, 1, wx.EXPAND)
 
-        # wxGTK adds way more space by default than wxMSW between the
-        # items, have to adjust for that
+        # wxGTK adds way more space by default than wxMSW between the items
+        # Have to adjust for that
         pad = 5
         if misc.isWindows:
             pad = 10
@@ -1136,8 +1136,8 @@ class MiscPanel(wx.Panel):
     def OnKillFocus(self, event):
         self.OnMisc()
 
-        # if we don't call this, the spin entry on wxGTK gets stuck in
-        # some weird state
+        # If we don't call this, the spin entry on wxGTK gets stuck in some
+        # weird state
         event.Skip()
 
     def OnMisc(self, event = None):
@@ -1174,8 +1174,8 @@ class MiscPanel(wx.Panel):
         dlg.Destroy()
 
     def OnGuessPDF(self, event):
-        # TODO: there must be a way to find out the default PDF viewer on
-        # Linux; we should do that here.
+        # TODO: there must be a way to find out the default PDF viewer on Linux;
+        #  We should do that here.
 
         viewer = util.getWindowsPDFViewer()
 
@@ -1186,8 +1186,8 @@ class MiscPanel(wx.Panel):
                           "PDF Viewer", wx.OK, cfgFrame)
 
     def cfg2gui(self):
-        # stupid wxwindows/wxpython displays empty box if the initial
-        # value is zero if we don't do this...
+        # Stupid wxwindows/wxpython displays empty box if the initial value is
+        # zero if we don't do this
         self.paginateEntry.SetValue(5)
 
         self.scriptDirEntry.SetValue(self.cfg.scriptDir)
@@ -1285,9 +1285,9 @@ class StringsPanel(wx.Panel):
         wx.Panel.__init__(self, parent, id)
         self.cfg = cfg
 
-        # list of names. each name is both the name of a wx.TextCtrl in
-        # this class and the name of a string configuration variable in
-        # cfg.
+        # List of names
+        # Each name is both the name of a wx.TextCtrl in this class and the name
+        # of a string configuration variable in cfg
         self.items = []
 
         vsizer = wx.BoxSizer(wx.VERTICAL)
@@ -1334,8 +1334,8 @@ class PDFPanel(wx.Panel):
 
         vsizer = wx.BoxSizer(wx.VERTICAL)
 
-        # wxGTK adds way more space by default than wxMSW between the
-        # items, have to adjust for that
+        # wxGTK adds way more space by default than wxMSW between the items
+        # Have to adjust for that
         pad = 0
         if misc.isWindows:
             pad = 10
@@ -1392,7 +1392,7 @@ class PDFFontsPanel(wx.Panel):
 
         self.blockEvents = True
 
-        # last directory we chose a font from
+        # Last directory we chose a font from
         self.lastDir = ""
 
         vsizer = wx.BoxSizer(wx.VERTICAL)
@@ -1445,7 +1445,7 @@ class PDFFontsPanel(wx.Panel):
 
         self.blockEvents = False
 
-    # check that all embedded TrueType fonts are OK
+    # Check that all embedded TrueType fonts are OK
     def checkForErrors(self):
         userHasSetFontNameWithoutFile = False
 
@@ -1518,13 +1518,13 @@ class PDFFontsPanel(wx.Panel):
         self.fileEntry.SetValue(self.pf.filename)
         self.fileEntry.SetInsertionPointEnd()
 
-    # read TrueType font from given file and return its Postscript name,
-    # or "" on errors.
+    # Read TrueType font from given file and return its Postscript name, or ""
+    # on errors.
     def getFontPostscriptName(self, filename):
-        # we load at most 10 MB to avoid a denial-of-service attack by
-        # passing around scripts containing references to fonts with
-        # filenames like "/dev/zero" etc. no real font that I know of is
-        # this big so it shouldn't hurt.
+        # We load at most 10 MB to avoid a denial-of-service attack by passing
+        # around scripts containing references to fonts with filenames like
+        # "/dev/zero" etc. No real font that I know of is this big, so it
+        # shouldn't hurt.
         fontProgram = util.loadFile(filename, cfgFrame, 10 * 1024 * 1024, True)
 
         if fontProgram is None:

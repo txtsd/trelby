@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # ut:ignore
 
-# runs random operations on a Screenplay as a way of trying to find bugs.
-# note that this is not part of the normal test run, this has to be run
+# Runs random operations on a Screenplay as a way of trying to find bugs.
+# Note that this is not part of the normal test run, this has to be run
 # manually.
 
 import random
@@ -21,33 +21,33 @@ from screenplay import Screenplay
 
 import u
 
-# generates, stores, saves, loads, and runs operations against a
-# Screenplay object.
+# Generates, stores, saves, loads, and runs operations against a Screenplay
+# object.
 class Ops:
     sp: Optional[Screenplay]
     def __init__(self):
-        # a list of Op objects
+        # A list of Op objects
         self.ops = []
 
-        # a Screenplay object
+        # A Screenplay object
         self.sp = None
 
-        # index of next operation to run
+        # Index of next operation to run
         self.nextPos = 0
 
-    # run next operation. returns True when more operations are waiting to
-    # be run, False otherwise.
+    # Run next operation. returns True when more operations are waiting to be
+    # run, False otherwise.
     def run(self):
         self.sp = self.ops[self.nextPos].run(self.sp)
         self.nextPos += 1
 
         return self.nextPos < len(self.ops)
 
-    # add given Operation.
+    # Add given Operation.
     def add(self, op):
         self.ops.append(op)
 
-    # return self.ops as a text string
+    # Return self.ops as a text string
     def save(self)->str:
         s = ""
 
@@ -56,7 +56,7 @@ class Ops:
 
         return s
 
-    # construct a new Ops from the given string.
+    # Construct a new Ops from the given string.
     @staticmethod
     def load(s):
         self = Ops()
@@ -67,7 +67,7 @@ class Ops:
 
         return self
 
-# a single operation
+# A single operation
 class Op:
     funcs = [
         "abort",
@@ -110,16 +110,15 @@ class Op:
     #   -paste
 
     def __init__(self, name = None):
-        # name of operation
+        # Name of operation
         self.name = name
 
-        # arguments to operation. currently a list of ints, but it's
-        # probable we need another class, Arg, that can represent an
-        # arbitrary argument.
+        # Arguments to operation. Currently, a list of ints, but it's probable
+        # we need another class, Arg, that can represent an arbitrary argument.
         self.args = []
 
-    # run this operation against the given screenplay. returns either sp
-    # or a new Screenplay object (if the operation is NEW/LOAD).
+    # Run this operation against the given screenplay. returns either sp or a
+    # new Screenplay object (if the operation is NEW/LOAD).
     def run(self, sp):
         if self.name == "NEW":
             return u.new()
@@ -133,9 +132,9 @@ class Op:
 
         return sp
 
-    # get a random operation.
+    # Get a random operation.
     # FIXME: this should have different probabilities for different
-    # operations.
+    #  operations.
     @staticmethod
     def getRandom():
         self = Op()
@@ -148,7 +147,7 @@ class Op:
 
         return self
 
-    # return self as a text string
+    # Return self as a text string
     def save(self):
         s = self.name
 
@@ -157,7 +156,7 @@ class Op:
 
         return s
 
-    # construct a new Ops from the given string.
+    # Construct a new Ops from the given string
     @staticmethod
     def load(s):
         vals = s.split(",")
@@ -169,7 +168,7 @@ class Op:
 
         return self
 
-# run random operations forever
+# Run random operations forever
 def runRandomOps():
     cnt = 0
     while True:
@@ -179,7 +178,7 @@ def runRandomOps():
         ops = Ops()
         failed = False
 
-        # every 10th time, test operations on an empty script
+        # Every 10th time, test operations on an empty script
         if (cnt % 10) == 0:
             ops.add(Op("NEW"))
         else:
@@ -215,7 +214,7 @@ def runRandomOps():
 
         cnt += 1
 
-# run ops from given file
+# Run ops from given file
 def runOpsFromFile(filename):
     f = open(filename, "r")
     s = f.read()
@@ -232,16 +231,15 @@ def runOpsFromFile(filename):
         if not more:
             break
 
-# save information about failed ops.
+# Save information about failed ops.
 def save(ops: Ops, cnt: int):
     f = open("%d.ops" % cnt, "w")
 
     tbLines = traceback.format_exception(*sys.exc_info())
 
     for l in tbLines:
-        # traceback lines contain embedded newlines so it gets a bit
-        # complex escaping every line with # and keeping the formatting
-        # correct.
+        # Traceback lines contain embedded newlines, so it gets a bit complex
+        # escaping every line with # and keeping the formatting correct.
         f.write("#" + l.rstrip().replace("\n", "\n#") + "\n")
 
     f.write(ops.save())

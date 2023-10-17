@@ -21,17 +21,17 @@ def check(val):
     if not val:
         raise ParseError("")
 
-# a parser for TrueType/OpenType fonts.
-# http://www.microsoft.com/typography/otspec/default.htm contained the
-# spec at the time of the writing.
+# A parser for TrueType/OpenType fonts.
+# http://www.microsoft.com/typography/otspec/default.htm contained the spec at
+# the time of the writing.
 class Font:
 
-    # load font from string s, which is the whole contents of a font file
+    # Load font from string s, which is the whole contents of a font file
     def __init__(self, s):
-        # is this a valid font
+        # Is this a valid font
         self.ok = False
 
-        # parse functions for tables, and a flag for whether each has been
+        # Parse functions for tables, and a flag for whether each has been
         # parsed successfully
         self.parseFuncs = {
             util.toLatin1("head") : [self.parseHead, False],
@@ -48,20 +48,20 @@ class Font:
 
         self.ok = True
 
-    # check if font was parsed correctly. none of the other
-    # (user-oriented) functions can be called if this returns False.
+    # Check if font was parsed correctly. None of the other (user-oriented)
+    # functions can be called if this returns False.
     def isOK(self):
         return self.ok
 
-    # get font's Postscript name.
+    # Get font's Postscript name
     def getPostscriptName(self):
         return self.psName
 
-    # returns True if font allows embedding.
+    # Returns True if font allows embedding
     def allowsEmbedding(self):
         return self.embeddingOK
 
-    # parse whole file
+    # Parse whole file
     def parse(self, s):
         version, self.tableCnt = unpack(">LH", s[:6])
 
@@ -77,7 +77,7 @@ class Font:
             if not func[1]:
                 raise ParseError("Table %s missing/invalid" % name)
 
-    # parse a single tag
+    # Parse a single tag
     def parseTag(self, offset, s):
         tag, checkSum, tagOffset, length = unpack(">4s3L",
             s[offset : offset + TABLE_DIR_SIZE])
@@ -90,13 +90,13 @@ class Font:
             func[0](s[tagOffset : tagOffset + length])
             func[1] = True
 
-    # parse head table
+    # Parse head table
     def parseHead(self, s):
         magic = unpack(">L", s[12:16])[0]
 
         check(magic == 0x5F0F3CF5)
 
-    # parse name table
+    # Parse name table
     def parseName(self, s):
         fmt, nameCnt, storageOffset = unpack(">3H", s[:NAME_TABLE_SIZE])
 
@@ -114,8 +114,8 @@ class Font:
 
         raise ParseError("No Postscript name found")
 
-    # parse a single name record. s2 is string storage. returns True if
-    # this record is a valid Postscript name.
+    # Parse a single name record. s2 is string storage. Returns True if this
+    # record is a valid Postscript name.
     def parseNameRecord(self, s, s2):
         platformID, encodingID, langID, nameID, strLen, strOffset = \
                     unpack(">6H", s)
@@ -147,7 +147,7 @@ class Font:
     def parseOS2(self, s):
         fsType = unpack(">H", s[8:10])[0]
 
-        # the font embedding bits are a mess, the meanings have changed
-        # over time in the TrueType/OpenType specs. this is the least
-        # restrictive interpretation common to them all.
+        # The font embedding bits are a mess, the meanings have changed over
+        # time in the TrueType/OpenType specs. This is the least restrictive
+        # interpretation common to them all.
         self.embeddingOK = (fsType & 0xF) != 2

@@ -1,6 +1,6 @@
 import u
 
-# tests movement commands
+# Tests movement commands
 
 def testMoveRight():
     sp = u.load()
@@ -77,7 +77,7 @@ def testMoveSceneUp():
     sp.cmd("moveSceneUp")
     assert (sp.line == 0) and (sp.column == 0)
 
-    # make sure we don't go before the start trying to find scenes
+    # Make sure we don't go before the start trying to find scenes
     sp.cmd("toAction")
     sp.cmd("moveSceneUp")
     assert (sp.line == 0) and (sp.column == 0)

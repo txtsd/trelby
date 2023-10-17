@@ -11,10 +11,10 @@ import functools
 import wx
 
 def genDialogueChart(mainFrame, sp):
-    # TODO: would be nice if this behaved like the other reports, i.e. the
-    # junk below would be inside the class, not outside. this would allow
-    # testcases to be written. only complication is the minLines thing
-    # which would need some thinking.
+    # TODO: would be nice if this behaved like the other reports, i.e. the junk
+    #  below would be inside the class, not outside. This would allow testcases
+    #  to be written. Only complication is the minLines thing which would need
+    #  some thinking.
 
     inf = []
     for it in [ ("Characters with < 10 lines", None),
@@ -72,7 +72,7 @@ class DialogueChart:
         for i in range(len(sp.pages) - 1):
             self.pages.append(PageInfo())
 
-        # map of CharInfo objects. key = name, value = CharInfo.
+        # Map of CharInfo objects. key = name, value = CharInfo.
         tmpCinfo = {}
 
         name = "UNKNOWN"
@@ -107,30 +107,30 @@ class DialogueChart:
             if v.lineCnt >= minLines:
                 self.cinfo.append(v)
 
-        # start Y of page markers
+        # Start Y of page markers
         self.pageY = 20.0
 
-        # where dialogue density bars start and how tall they are
+        # Where dialogue density bars start and how tall they are
         self.barY = 30.0
         self.barHeight = 15.0
 
-        # chart Y pos
+        # Chart Y pos
         self.chartY = 50.0
 
-        # how much to leave empty on each side (mm)
+        # How much to leave empty on each side (mm)
         self.margin = 10.0
 
-        # try point sizes 10,9,8,7,6 until all characters fit on the page
-        # (if 6 is still too big, too bad)
+        # Try point sizes 10,9,8,7,6 until all characters fit on the page (if 6
+        # is still too big, too bad)
         size = 10
         while 1:
-            # character font size in points
+            # Character font size in points
             self.charFs = size
 
-            # how many mm in Y direction for each character
+            # How many mm in Y direction for each character
             self.charY = util.getTextHeight(self.charFs)
 
-            # height of chart
+            # Height of chart
             self.chartHeight = len(self.cinfo) * self.charY
 
             if size <= 6:
@@ -142,8 +142,8 @@ class DialogueChart:
 
             size -= 1
 
-        # calculate maximum length of character name, and start position
-        # of chart from that
+        # Calculate maximum length of character name, and start position of
+        # chart from that.
 
         maxLen = 0
         for ci in self.cinfo:
@@ -152,25 +152,25 @@ class DialogueChart:
 
         charX = util.getTextWidth(" ", pml.COURIER, self.charFs)
 
-        # chart X pos
+        # Chart X pos
         self.chartX = self.margin + maxLen * charX + 3
 
-        # width of chart
+        # Width of chart
         self.chartWidth = sp.cfg.paperHeight - self.chartX - self.margin
 
-        # page contents bar legends' size and position
+        # Page contents bar legends' size and position
         self.legendWidth = 23.0
         self.legendHeight = 23.0
         self.legendX = self.margin + 2.0
         self.legendY = self.barY + self.barHeight - self.legendHeight
 
-        # margin from legend border to first item
+        # Margin from legend border to first item
         self.legendMargin = 2.0
 
-        # spacing from one legend item to next
+        # Spacing from one legend item to next
         self.legendSpacing = 5.0
 
-        # spacing from one legend item to next
+        # Spacing from one legend item to next
         self.legendSize = 4.0
 
     def generate(self, cbil: List[misc.CheckBoxItem]) -> bytes:
@@ -195,7 +195,7 @@ class DialogueChart:
 
         pg.add(pml.TextOp("Page:", self.chartX - 1.0, self.pageY - 5.0, 10))
 
-        # draw backround for every other row. this needs to be done before
+        # Draw background for every other row. This needs to be done before
         # drawing the grid.
         for i in range(len(self.cinfo)):
             y = self.chartY + i * self.charY
@@ -206,15 +206,15 @@ class DialogueChart:
                                   self.charY))
                 pg.add(pml.PDFOp("0.0 g"))
 
-        # line width to use
+        # Line width to use
         lw = 0.25
 
         pg.add(pml.PDFOp("0.5 G"))
 
-        # dashed pattern
+        # Dashed pattern
         pg.add(pml.PDFOp("[2 2] 0 d"))
 
-        # draw grid and page markers
+        # Draw grid and page markers
         for i in range(pageCnt):
             if (i == 0) or ((i + 1) % 10) == 0:
                 x = self.chartX + i * mmPerPage
@@ -230,10 +230,10 @@ class DialogueChart:
 
         pg.add(pml.PDFOp("0.0 G"))
 
-        # restore normal line pattern
+        # Restore normal line pattern
         pg.add(pml.PDFOp("[] 0 d"))
 
-        # legend for page content bars
+        # Legend for page content bars
         pg.add(pml.RectOp(self.legendX, self.legendY,
             self.legendWidth, self.legendHeight, pml.NO_FILL, lw))
 
@@ -242,7 +242,7 @@ class DialogueChart:
         self.drawLegend(pg, 2, 0.5, "Dialogue", lw)
         self.drawLegend(pg, 3, 0.3, "Action", lw)
 
-        # page content bars
+        # Page content bars
         for i in range(pageCnt):
             x = self.chartX + i * mmPerPage
             y = self.barY + self.barHeight
@@ -270,7 +270,7 @@ class DialogueChart:
 
         pg.add(pml.PDFOp("0.0 g"))
 
-        # rectangle around page content bars
+        # Rectangle around page content bars
         pg.add(pml.RectOp(self.chartX, self.barY, self.chartWidth,
                          self.barHeight, pml.NO_FILL, lw))
 
@@ -293,7 +293,7 @@ class DialogueChart:
 
         return pg
 
-    # draw a single legend for page content bars
+    # Draw a single legend for page content bars
     def drawLegend(self, pg, pos, color, name, lw):
         x = self.legendX + self.legendMargin
         y = self.legendY + self.legendMargin + pos * self.legendSpacing
@@ -308,46 +308,46 @@ class DialogueChart:
         pg.add(pml.TextOp(name, x + self.legendSize + 2.0, y, 6))
 
 
-# keeps track of information for one page
+# Keeps track of information for one page
 class PageInfo:
     def __init__(self):
-        # how many lines of each type this page contains. key = line type,
-        # value = int. note that if value would be 0, this doesn't have
-        # the key at all, so use the helper functions below.
+        # How many lines of each type this page contains. key = line type,
+        # value = int. Note that if value would be 0, this doesn't have the key
+        # at all, so use the helper functions below.
         self.lineCounts = {}
 
         # total line count
         self.totalLineCount = -1
 
         # how many lines each character speaks on this page. key =
-        # character name, value = int. note that if someone doesn't speak
-        # they have no entry.
+        # character name, value = int. note that if someone doesn't speak they
+        # have no entry.
         self.speakers = {}
 
-    # add one line of given type.
+    # Add one line of given type
     def addLine(self, lt):
         self.lineCounts[lt] = self.getLineCount(lt) + 1
 
-    # get total number of lines.
+    # Get total number of lines
     def getTotalLineCount(self):
         if self.totalLineCount == -1:
             self.totalLineCount = sum(iter(self.lineCounts.values()), 0)
 
         return self.totalLineCount
 
-    # get number of lines of given type.
+    # Get number of lines of given type
     def getLineCount(self, lt):
         return self.lineCounts.get(lt, 0)
 
-    # add one dialogue line for given speaker.
+    # Add one dialogue line for given speaker
     def addLineToSpeaker(self, name):
         self.speakers[name] = self.getSpeakerLineCount(name) + 1
 
-    # get number of lines of dialogue for given character.
+    # Get number of lines of dialogue for given character
     def getSpeakerLineCount(self, name):
         return self.speakers.get(name, 0)
 
-# keeps track of each character's dialogue lines.
+# Keeps track of each character's dialogue lines
 class CharInfo:
     def __init__(self, name, firstPage):
         self.name = name
@@ -355,7 +355,7 @@ class CharInfo:
         self.lastPage = firstPage
         self.lineCnt = 1
 
-    # add a line at given page.
+    # Add a line at given page
     def addLine(self, page):
         self.lastPage = page
         self.lineCnt += 1

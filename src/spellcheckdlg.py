@@ -15,10 +15,10 @@ class SpellCheckDlg(wx.Dialog):
         # spellcheck.SpellCheck
         self.sc = sc
 
-        # user's global spell checker dictionary
+        # User's global spell checker dictionary
         self.gScDict = gScDict
 
-        # have we added any words to global dictionary
+        # Have we added any words to global dictionary
         self.changedGlobalDict = False
 
         vsizer = wx.BoxSizer(wx.VERTICAL)
@@ -124,8 +124,8 @@ class SpellCheckDlg(wx.Dialog):
 
         sp.rewrapPara(sp.getParaFirstIndexFromLine(self.sc.line))
 
-        # rewrapping a paragraph can have moved the cursor, so get the new
-        # location of it, and then advance past the just-changed word
+        # Re-wrapping a paragraph can have moved the cursor, so get the new
+        # location of it, and then advance past the just-changed word.
         self.sc.line = sp.line
         self.sc.col = sp.column + len(word)
 
@@ -214,8 +214,8 @@ class SpellCheckDlg(wx.Dialog):
 
         dlg.Destroy()
 
-    # if w2 is closer to w1 in Levenshtein distance than d, add it to
-    # fifo. return min(d, new_distance).
+    # If w2 is closer to w1 in Levenshtein distance than d, add it to fifo.
+    # Return min(d, new_distance).
     def tryWord(self, w1, w1len, w2, d, fifo):
         if abs(w1len - len(w2)) > 3:
             return d

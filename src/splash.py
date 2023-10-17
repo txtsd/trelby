@@ -9,10 +9,10 @@ import wx
 
 class Quote:
     def __init__(self, source, lines):
-        # unicode string
+        # Unicode string
         self.source = source
 
-        # list of unicode strings
+        # List of unicode strings
         self.lines = lines
 
 class SplashWindow(wx.Frame):
@@ -122,12 +122,12 @@ class SplashWindow(wx.Frame):
             if data is None:
                 return
 
-            #data = data.decode("utf-8")
+            # data = data.decode("utf-8")
             lines = data.splitlines()
 
             quotes = []
 
-            # lines saved for current quote being processed
+            # Lines saved for current quote being processed
             tmp = []
 
             for i,line in enumerate(lines):

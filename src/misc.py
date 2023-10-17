@@ -22,7 +22,7 @@ version = "2.4.9"
 def init(doWX = True):
     global isWindows, isUnix, unicodeFS, doDblBuf, progPath, confPath, tmpPrefix
 
-    # prefix used for temp files
+    # Prefix used for temp files
     tmpPrefix = "trelby-tmp-"
 
     isWindows = False
@@ -33,16 +33,16 @@ def init(doWX = True):
     else:
         isWindows = True
 
-    # does this platform support using Python's unicode strings in various
-    # filesystem calls; if not, we need to convert filenames to UTF-8
-    # before using them.
+    # Does this platform support using Python's unicode strings in various
+    # filesystem calls; if not, we need to convert filenames to UTF-8 before
+    # using them.
     unicodeFS = isWindows
 
-    # wxGTK2 does not need us to do double buffering ourselves, others do
+    # wxGTK2 does not need us to do double buffering ourselves, others do.
     doDblBuf = not isUnix
 
-    # stupid hack to keep testcases working, since they don't initialize
-    # opts (the doWX name is just for similarity with util)
+    # Stupid hack to keep testcases working, since they don't initialize opts
+    # (the doWX name is just for similarity with util)
     if not doWX or opts.isTest:
         progPath = "."
         confPath = ".trelby"
@@ -80,27 +80,26 @@ def getPathFromRegistry():
                       registryPath, "Error", wx.OK)
         sys.exit()
 
-# convert s, which is returned from the wxWidgets GUI and is an Unicode
-# string, to a normal string.
+# Convert s, which is returned from the wxWidgets GUI and is an Unicode string,
+# to a normal string.
 def fromGUI(s):
     return s
 
-# convert s, which is an Unicode string, to an object suitable for passing
-# to Python's file APIs. this is either the Unicode string itself, if the
-# platform supports Unicode-based APIs (and Python has implemented support
-# for it), or the Unicode string converted to UTF-8 on other platforms.
+# Convert s, which is a Unicode string, to an object suitable for passing to
+# Python's file APIs. This is either the Unicode string itself, if the platform
+# supports Unicode-based APIs (and Python has implemented support for it), or
+# the Unicode string converted to UTF-8 on other platforms.
 def toPath(s: str) -> AnyStr:
     if unicodeFS:
         return s
     else:
         return s.encode("UTF-8")
 
-# return bitmap created from the given file. argument is as for
-# getFullPath.
+# Return bitmap created from the given file. Argument is as for getFullPath.
 def getBitmap(filename):
     return wx.Bitmap(getFullPath(filename))
 
-# return the absolute path of a file under the install dir. so passing in
+# Return the absolute path of a file under the install dir. So passing in
 # "resources/blaa.png" might return "/opt/trelby/resources/blaa.png" for
 # example.
 def getFullPath(relative):
@@ -122,8 +121,8 @@ class MyColorSample(wx.Window):
         dc.SetBrush(br)
         dc.DrawRectangle(0, 0, w, h)
 
-# Custom "exit fullscreen" button for our tab bar. Used so that we have
-# full control over the button's size.
+# Custom "exit fullscreen" button for our tab bar. Used so that we have full
+# control over the button's size.
 class MyFSButton(wx.Window):
     def __init__(self, parent, id, getCfgGui):
         wx.Window.__init__(self, parent, id, size = (TAB_BAR_HEIGHT, TAB_BAR_HEIGHT))
@@ -152,7 +151,7 @@ class MyFSButton(wx.Window):
         clickEvent.SetEventObject(self)
         self.GetEventHandler().ProcessEvent(clickEvent)
 
-# custom status control
+# Custom status control
 class MyStatus(wx.Window):
     WIDTH = 280
     X_ELEDIVIDER = 100
@@ -227,11 +226,11 @@ class MyStatus(wx.Window):
         self.Refresh(False)
 
 
-# our own version of a tab control, which exists for two reasons: it does
-# not care where it is physically located, which allows us to combine it
-# with other controls on a horizontal row, and it consumes less vertical
-# space than wx.Notebook. note that this control is divided into two parts,
-# MyTabCtrl and MyTabCtrl2, and both must be created.
+# Our own version of a tab control, which exists for two reasons: it does not
+# care where it is physically located, which allows us to combine it with other
+# controls on a horizontal row, and it consumes less vertical space than
+# wx.Notebook. Note that this control is divided into two parts, MyTabCtrl and
+# MyTabCtrl2, and both must be created.
 class MyTabCtrl(wx.Window):
     def __init__(self, parent, id, getCfgGui):
         style = wx.FULL_REPAINT_ON_RESIZE
@@ -239,33 +238,33 @@ class MyTabCtrl(wx.Window):
 
         self.getCfgGui = getCfgGui
 
-        # pages, i.e., [wx.Window, name] lists. note that 'name' must be an
+        # Pages, i.e., [wx.Window, name] lists. Note that 'name' must be a
         # Unicode string.
         self.pages = []
 
-        # index of selected page
+        # Index of selected page
         self.selected = -1
 
-        # index of first visible tab
+        # Index of first visible tab
         self.firstTab = 0
 
-        # how much padding to leave horizontally at the ends of the
-        # control, and within each tab
+        # How much padding to leave horizontally at the ends of the control,
+        # and within each tab.
         self.paddingX = 10
 
-        # starting Y-pos of text in labels
+        # Starting Y-pos of text in labels
         self.textY = 5
 
-        # width of a single tab
+        # Width of a single tab
         self.tabWidth = 150
 
-        # width, height, spacing, y-pos of arrows
+        # Width, height, spacing, y-pos of arrows.
         self.arrowWidth = 8
         self.arrowHeight = 13
         self.arrowSpacing = 3
         self.arrowY = 5
 
-        # initialized in OnPaint since we don't know our height yet
+        # Initialized in OnPaint since we don't know our height yet
         self.font = None
         self.boldFont = None
 
@@ -279,19 +278,19 @@ class MyTabCtrl(wx.Window):
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
 
-    # get the ctrl that the tabbed windows should use as a parent
+    # Get the ctrl that the tabbed windows should use as a parent
     def getTabParent(self):
         return self.ctrl2
 
-    # get page count
+    # Get page count
     def getPageCount(self):
         return len(self.pages)
 
-    # get selected page index
+    # Get selected page index
     def getSelectedPageIndex(self):
         return self.selected
 
-    # get given page
+    # Get given page
     def getPage(self, i):
         return self.pages[i][0]
 
@@ -299,24 +298,24 @@ class MyTabCtrl(wx.Window):
     def add2(self, ctrl2):
         self.ctrl2 = ctrl2
 
-    # add page
+    # Add page
     def addPage(self, page, name):
         self.pages.append([page, name])
 
-        # the new page must be given the correct size and position
+        # The new page must be given the correct size and position
         self.setPageSizes()
         page.Move(0, 0)
 
         self.selectPage(len(self.pages) - 1)
 
-    # set all page's sizes
+    # Set all page's sizes
     def setPageSizes(self):
         size = self.ctrl2.GetClientSize()
 
         for p in self.pages:
             p[0].SetClientSize(size.width, size.height)
 
-    # select given page
+    # Select given page
     def selectPage(self, page):
         self.selected = page
 
@@ -332,14 +331,14 @@ class MyTabCtrl(wx.Window):
         self.makeSelectedTabVisible()
         self.Refresh(False)
 
-    # delete given page
+    # Delete given page
     def deletePage(self, i):
         self.pages[i][0].Destroy()
         del self.pages[i]
 
         self.selectPage(util.clamp(i, 0, len(self.pages) - 1))
 
-    # try to change the first visible tag by the given amount.
+    # Try to change the first visible tag by the given amount
     def scroll(self, delta):
         newFirstTab = self.firstTab + delta
 
@@ -347,49 +346,49 @@ class MyTabCtrl(wx.Window):
             self.firstTab = newFirstTab
             self.Refresh(False)
 
-    # calculate the maximum number of tabs that we could show with our
-    # current size.
+    # Calculate the maximum number of tabs that we could show with our current
+    # size
     def calcMaxVisibleTabs(self):
         w = self.GetClientSize()[0]
 
         w -= self.paddingX * 2
         w -= self.arrowWidth * 2 + self.arrowSpacing
 
-        # leave at least 2 pixels between left arrow and last tab
+        # Leave at least 2 pixels between left arrow and last tab
         w -= 2
 
         w //= self.tabWidth
 
-        # if by some freak accident we're so small that the above results
-        # in w being negative or positive but too small, guard against us
-        # ever returning < 1.
+        # If by some freak accident we're so small that the above results in w
+        # being negative or positive but too small, guard against us ever
+        # returning < 1.
         return max(1, w)
 
-    # get last visible tab
+    # Get last visible tab
     def getLastVisibleTab(self):
         return util.clamp(self.firstTab + self.calcMaxVisibleTabs() - 1,
                           maxVal = len(self.pages) - 1)
 
-    # make sure selected tab is visible
+    # Make sure selected tab is visible
     def makeSelectedTabVisible(self):
         maxTab = self.getLastVisibleTab()
 
-        # if already visible, no need to do anything
+        # If already visible, no need to do anything.
         if (self.selected >= self.firstTab) and (self.selected <= maxTab):
             return
 
-        # otherwise, position the selected tab as far right as possible
+        # Otherwise, position the selected tab as far right as possible.
         self.firstTab = util.clamp(
             self.selected - self.calcMaxVisibleTabs() + 1,
             0)
 
-    # set text for tab 'i' to 's'
+    # Set text for tab 'i' to 's'
     def setTabText(self, i, s):
         self.pages[i][1] = s
         self.Refresh(False)
 
-    # set function to call when page changes. the function gets a single
-    # integer argument, the index of the new page.
+    # Set function to call when page changes. The function gets a single integer
+    # argument, the index of the new page.
     def setPageChangedFunc(self, func):
         self.pageChangeFunc = func
 
@@ -401,7 +400,7 @@ class MyTabCtrl(wx.Window):
 
         w = self.GetClientSize()[0]
 
-        # start of left arrow
+        # Start of left arrow
         lx = w - 1 - self.paddingX - self.arrowWidth - self.arrowSpacing \
              - self.arrowWidth + 1
 
@@ -428,7 +427,7 @@ class MyTabCtrl(wx.Window):
             if x < (lx + self.arrowWidth):
                 self.scroll(-1)
 
-            # start of right arrow
+            # Start of right arrow
             rx = lx + self.arrowWidth + self.arrowSpacing
 
             if (x >= rx) and (x < (rx + self.arrowWidth)) and \
@@ -476,22 +475,24 @@ class MyTabCtrl(wx.Window):
                 points=((0,tabH),(4,2),(6,1),(tabW-8,1),(tabW-6,2),(tabW-2,tabH))
                 dc.SetBrush(cfgGui.workspaceBrush)
             else:
-                points=((0,tabH-separatorLineThickness),(3,3),(5,2),(tabW-8,2),(tabW-6,3),(tabW-2,tabH-separatorLineThickness)) # subtract its thickness to not cover the separator line
+                # subtract its thickness to not cover the separator line
+                points=((0,tabH-separatorLineThickness),(3,3),(5,2),(tabW-8,2),(tabW-6,3),(tabW-2,tabH-separatorLineThickness))
                 dc.SetBrush(cfgGui.tabNonActiveBgBrush)
 
             dc.DestroyClippingRegion()
 
-            # draw tab background
+            # Draw tab background
             dc.SetClippingRegion(xpos, tabY, tabW, tabH)
             dc.SetPen(wx.Pen(wx.NullPen))
             dc.DrawPolygon(points,xpos,tabY)
 
-            # draw tab borders
-            dc.SetClippingRegion(xpos, tabY, tabW, tabH-separatorLineThickness) # tab borders should never cross the seperator line
+            # Draw tab borders
+            # Tab borders should never cross the seperator line
+            dc.SetClippingRegion(xpos, tabY, tabW, tabH-separatorLineThickness)
             dc.SetPen(cfgGui.tabBorderPen)
             dc.DrawLines(points,xpos,tabY)
 
-            # clip the text to fit within the tabs
+            # Clip the text to fit within the tabs
             dc.DestroyClippingRegion()
             dc.SetClippingRegion(xpos, tabY, tabW - self.paddingX * 3, tabH)
 
@@ -505,7 +506,7 @@ class MyTabCtrl(wx.Window):
 
             xpos += tabW
 
-        # start of right arrow
+        # Start of right arrow
         rx = w - 1 - self.paddingX - self.arrowWidth + 1
 
         if self.firstTab != 0:
@@ -530,7 +531,7 @@ class MyTabCtrl(wx.Window):
             util.drawLine(dc, rx + 1, self.arrowY + self.arrowHeight - 1,
                           self.arrowWidth - 1, -(self.arrowHeight // 2 + 1))
 
-# second part of MyTabCtrl
+# Second part of MyTabCtrl
 class MyTabCtrl2(wx.Window):
     def __init__(self, parent, id, tabCtrl):
         wx.Window.__init__(self, parent, id)
@@ -550,15 +551,15 @@ class MyTabCtrl2(wx.Window):
     def OnSize(self, event):
         self.tabCtrl.setPageSizes()
 
-    # we have an OnPaint handler that does nothing in a feeble attempt in
-    # trying to make sure that in the cases when this does get called, as
-    # little (useless) work as possible is done.
+    # We have an OnPaint handler that does nothing in a feeble attempt in trying
+    # to make sure that in the cases when this does get called, as little
+    # (useless) work as possible is done.
     def OnPaint(self, event):
         wx.PaintDC(self)
 
-# dialog that shows two lists of script names, allowing user to choose one
-# from both. stores indexes of selections in members named 'sel1' and
-# 'sel2' when OK is pressed. 'items' must have at least two items.
+# Dialog that shows two lists of script names, allowing user to choose one from
+# both. Stores indexes of selections in members named 'sel1' and 'sel2' when OK
+# is pressed. 'items' must have at least two items.
 class ScriptChooserDlg(wx.Dialog):
     def __init__(self, parent, items):
         wx.Dialog.__init__(self, parent, -1, "Choose scripts",
@@ -632,9 +633,8 @@ class CheckBoxItem:
         self.selected = selected
         self.cdata = cdata
 
-    # return dict which has keys for all selected items' client data.
-    # takes a list of CheckBoxItem's as its parameter. note: this is a
-    # static function.
+    # Return dict which has keys for all selected items' client data. Takes a
+    # list of CheckBoxItem's as its parameter. Note: this is a static function.
     @staticmethod
     def getClientData(cbil):
         tmp = {}
@@ -647,11 +647,10 @@ class CheckBoxItem:
 
         return tmp
 
-# shows one or two (one if cbil2 = None) checklistbox widgets with
-# contents from cbil1 and possibly cbil2, which are lists of
-# CheckBoxItems. btns[12] are bools for whether or not to include helper
-# buttons. if OK is pressed, the incoming lists' items' selection status
-# will be modified.
+# Shows one or two (one if cbil2 = None) checklistbox widgets with contents from
+# cbil1 and possibly cbil2, which are lists of CheckBoxItems. btns[12] are bools
+# for whether to include helper buttons. If OK is pressed, the incoming lists'
+# items' selection status will be modified.
 class CheckBoxDlg(wx.Dialog):
     def __init__(self, parent, title, cbil1, descr1, btns1,
                  cbil2 = None, descr2 = None, btns2 = None):
@@ -737,9 +736,9 @@ class CheckBoxDlg(wx.Dialog):
         else:
             h = min(10, len(items))
 
-        # don't know of a way to get the vertical spacing of items in a
-        # wx.CheckListBox, so estimate it at font height + 5 pixels, which
-        # is close enough on everything I've tested.
+        # Don't know of a way to get the vertical spacing of items in a
+        # wx.CheckListBox, so estimate it at font height + 5 pixels, which is
+        # close enough on everything I've tested.
         h *= util.getFontHeight(tmp.GetFont()) + 5
         h += 5
         h = max(25, h)
@@ -790,7 +789,7 @@ class CheckBoxDlg(wx.Dialog):
     def OnCancel(self, event):
         self.EndModal(wx.ID_CANCEL)
 
-# shows a multi-line string to the user in a scrollable text control.
+# Shows a multi-line string to the user in a scrollable text control
 class TextDlg(wx.Dialog):
     def __init__(self, parent, text, title):
         wx.Dialog.__init__(self, parent, -1, title,
@@ -817,22 +816,22 @@ class TextDlg(wx.Dialog):
     def OnOK(self, event):
         self.EndModal(wx.ID_OK)
 
-# helper function for using TextDlg
+# Helper function for using TextDlg
 def showText(parent, text, title = "Message"):
     dlg = TextDlg(parent, text, title)
     dlg.ShowModal()
     dlg.Destroy()
 
-# ask user for a single-line text input.
+# Ask user for a single-line text input
 class TextInputDlg(wx.Dialog):
     def __init__(self, parent, text, title, validateFunc = None):
         wx.Dialog.__init__(self, parent, -1, title,
                            style = wx.DEFAULT_DIALOG_STYLE | wx.WANTS_CHARS)
 
-        # function to call to validate the input string on OK. can be
-        # None, in which case it is not called. if it returns "", the
-        # input is valid, otherwise the string it returns is displayed in
-        # a message box and the dialog is not closed.
+        # Function to call to validate the input string on OK. Can be None, in
+        # which case it is not called. If it returns "", the input is valid,
+        # otherwise the string it returns is displayed in a message box and the
+        # dialog is not closed.
         self.validateFunc = validateFunc
 
         vsizer = wx.BoxSizer(wx.VERTICAL)
@@ -901,7 +900,7 @@ class TextInputDlg(wx.Dialog):
     def OnCancel(self, event = None):
         self.EndModal(wx.ID_CANCEL)
 
-# asks the user for a keypress and stores it.
+# Asks the user for a keypress and stores it
 class KeyDlg(wx.Dialog):
     def __init__(self, parent, cmdName):
         wx.Dialog.__init__(self, parent, -1, "Key capture",
@@ -919,7 +918,7 @@ class KeyDlg(wx.Dialog):
 
         tmp.SetFocus()
 
-# used by KeyDlg
+# Used by KeyDlg
 class KeyDlgWidget(wx.Window):
     def __init__(self, parent, id, size):
         wx.Window.__init__(self, parent, id, size = size,
@@ -932,10 +931,10 @@ class KeyDlgWidget(wx.Window):
         p.key = util.Key.fromKE(ev)
         p.EndModal(wx.ID_OK)
 
-# handles the "Most recently used" list of files in a menu.
+# Handles the "Most recently used" list of files in a menu
 class MRUFiles:
     def __init__(self, maxCount):
-        # max number of items
+        # Max number of items
         self.maxCount = maxCount
 
         # items (Unicode strings)
@@ -945,22 +944,22 @@ class MRUFiles:
             id = wx.NewId()
 
             if i == 0:
-                # first menu id
+                # First menu ID
                 self.firstId = id
             elif i == (self.maxCount - 1):
-                # last menu id
+                # Last menu ID
                 self.lastId = id
 
-    # use given menu. this must be called before any "add" calls.
+    # Use given menu. This must be called before any "add" calls.
     def useMenu(self, menu, menuPos):
-        # menu to use
+        # Menu to use
         self.menu = menu
 
-        # position in menu to add first item at
+        # Position in menu to add first item at
         self.menuPos = menuPos
 
-        # if we already have items, add them to the menu (in reverse order
-        # to maintain the correct ordering)
+        # If we already have items, add them to the menu (in reverse order to
+        # maintain the correct ordering)
         tmp = self.items
         tmp.reverse()
         self.items = []
@@ -968,40 +967,40 @@ class MRUFiles:
         for it in tmp:
             self.add(it)
 
-    # return (firstMenuId, lastMenuId).
+    # Return (firstMenuId, lastMenuId)
     def getIds(self):
         return (self.firstId, self.lastId)
 
-    # add item.
+    # Add item
     def add(self, s):
-        # remove old menu items
+        # Remove old menu items
         for i in range(self.getCount()):
             self.menu.Delete(self.firstId + i)
 
-        # if item already exists, remove it
+        # If item already exists, remove it.
         try:
             i = self.items.index(s)
             del self.items[i]
         except ValueError:
             pass
 
-        # add item to top of list
+        # Add item to top of list
         self.items.insert(0, str(s))
 
-        # prune overlong list
+        # Prune overlong list
         if self.getCount() > self.maxCount:
             self.items = self.items[:self.maxCount]
 
-        # add new menu items
+        # Add new menu items
         for i in range(self.getCount()):
             self.menu.Insert(self.menuPos + i, self.firstId + i,
                              "&%d %s" % (
                 i + 1, os.path.basename(str(self.get(i)))))
 
-    # return number of items.
+    # Return number of items
     def getCount(self):
         return len(self.items)
 
-    # get item number 'i'.
+    # Get item number 'i'
     def get(self, i):
         return str(self.items[i])

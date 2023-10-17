@@ -3,13 +3,13 @@ import mypickle
 import screenplay
 import util
 
-# manages auto completion information for a single script.
+# Manages auto-completion information for a single script
 class AutoCompletion:
     def __init__(self):
-        # type configs, key = line type, value = Type
+        # Type configs, key = line type, value = Type
         self.types = {}
 
-        # element types
+        # Element types
         t = Type(screenplay.SCENE)
         self.types[t.ti.lt] = t
 
@@ -39,8 +39,10 @@ class AutoCompletion:
 
         self.refresh()
 
-    # load config from string 's'. does not throw any exceptions, silently
-    # ignores any errors, and always leaves config in an ok state.
+    # Load config from string 's'
+    # Does not throw any exceptions
+    # Silently ignores any errors
+    # Always leaves config in an okay state
     def load(self, s):
         vals = mypickle.Vars.makeVals(s)
 
@@ -49,7 +51,7 @@ class AutoCompletion:
 
         self.refresh()
 
-    # save config into a string and return that.
+    # Save config into a string and return that
     def save(self):
         s = ""
 
@@ -58,7 +60,7 @@ class AutoCompletion:
 
         return s
 
-    # fix up invalid values and uppercase everything.
+    # Fix up invalid values and uppercase everything
     def refresh(self):
         for t in self.types.values():
             tmp = []
@@ -71,17 +73,17 @@ class AutoCompletion:
 
             t.items = tmp
 
-    # get type's Type, or None if it doesn't exist.
+    # Get type's Type, or None if it doesn't exist
     def getType(self, lt):
         return self.types.get(lt)
 
-# auto completion info for one element type
+# Auto-completion info for one element type
 class Type:
     cvars = None
 
     def __init__(self, lt):
 
-        # pointer to TypeInfo
+        # Pointer to TypeInfo
         self.ti = config.lt2ti(lt)
 
         if not self.__class__.cvars:

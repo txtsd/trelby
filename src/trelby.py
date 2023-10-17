@@ -40,7 +40,7 @@ import wx
 
 from functools import partial
 
-#keycodes
+# Keycodes
 KC_CTRL_A = 1
 KC_CTRL_B = 2
 KC_CTRL_D = 4
@@ -63,7 +63,7 @@ def refreshGuiConfig():
 def getCfgGui():
     return cfgGui
 
-# keeps (some) global data
+# Keeps (some) global data
 class GlobalData:
     def __init__(self):
 
@@ -71,13 +71,13 @@ class GlobalData:
         self.stateFilename = misc.confPath + "/state"
         self.scDictFilename = misc.confPath + "/spell_checker_dictionary"
 
-        # current script config path
+        # Current script config path
         self.scriptSettingsPath = misc.confPath
 
-        # global spell checker (user) dictionary
+        # Global spell checker (user) dictionary
         self.scDict = spellcheck.Dict()
 
-        # recently used files list
+        # Recently used files list
         self.mru = misc.MRUFiles(5)
 
         if opts.conf:
@@ -88,7 +88,7 @@ class GlobalData:
         v.addInt("posX", 0, "PositionX", -20, 9999)
         v.addInt("posY", 0, "PositionY", -20, 9999)
 
-        # linux has bigger font by default so it needs a wider window
+        # Linux has bigger font by default, so it needs a wider window
         defaultW = 750
         if misc.isUnix:
             defaultW = 800
@@ -127,7 +127,7 @@ class GlobalData:
                               "'%s': %s" % (misc.confPath, os.strerror),
                               "Error", wx.OK, None)
 
-    # set viewmode, the parameter is one of the VIEWMODE_ defines.
+    # Set viewmode, the parameter is one of the VIEWMODE_ defines.
     def setViewMode(self, viewMode):
         self.viewMode = viewMode
 
@@ -140,19 +140,19 @@ class GlobalData:
         else:
             self.vm = self.vmDraft
 
-    # load from string 's'. does not throw any exceptions and silently
-    # ignores any errors.
+    # Load from string 's'. Does not throw any exceptions and silently ignores
+    # any errors.
     def load(self, s):
         self.cvars.load(self.cvars.makeVals(s), "", self)
         self.mru.items = self.files
 
-    # save to a string and return that.
+    # Save to a string and return that
     def save(self):
         self.files = self.mru.items
 
         return self.cvars.save("", self)
 
-    # save global spell checker dictionary to disk
+    # Save global spell checker dictionary to disk
     def saveScDict(self):
         util.writeToFile(self.scDictFilename, self.scDict.save(), mainFrame)
 
@@ -161,8 +161,7 @@ class MyPanel(wx.Panel):
     def __init__(self, parent, id):
         wx.Panel.__init__(
             self, parent, id,
-            # wxMSW/Windows does not seem to support
-            # wx.NO_BORDER, which sucks
+            # wxMSW/Windows does not seem to support wx.NO_BORDER, which sucks
             style = wx.WANTS_CHARS | wx.NO_BORDER)
 
         hsizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -179,8 +178,8 @@ class MyPanel(wx.Panel):
 
         self.SetSizer(hsizer)
 
-    # we never want the scrollbar to get the keyboard focus, pass it on to
-    # the main widget
+    # We never want the scrollbar to get the keyboard focus, pass it on to the
+    # main widget
     def OnScrollbarFocus(self, event):
         self.ctrl.SetFocus()
 
@@ -222,7 +221,7 @@ class MyCtrl(wx.Control):
     def clearVars(self):
         self.mouseSelectActive = False
 
-        # find dialog stored settings
+        # Find dialog stored settings
         self.findDlgFindText = ""
         self.findDlgReplaceText = ""
         self.findDlgMatchWholeWord= False
@@ -239,17 +238,17 @@ class MyCtrl(wx.Control):
         self.setFile(None)
         self.refreshCache()
 
-    # update stuff that depends on configuration / view mode etc.
+    # Update stuff that depends on configuration / view mode etc.
     def refreshCache(self):
         self.chX = util.getTextWidth(" ", pml.COURIER, self.sp.cfg.fontSize)
         self.chY = util.getTextHeight(self.sp.cfg.fontSize)
 
         self.pageW = gd.vm.getPageWidth(self)
 
-        # conversion factor from mm to pixels
+        # Conversion factor from mm to pixels
         self.mm2p = self.pageW / self.sp.cfg.paperWidth
 
-        # page width and height on screen, in pixels
+        # Page width and height on screen, in pixels
         self.pageW = int(self.pageW)
         self.pageH = int(self.mm2p * self.sp.cfg.paperHeight)
 
@@ -277,11 +276,11 @@ class MyCtrl(wx.Control):
         self.setFile(fileName)
         self.refreshCache()
 
-        # saved cursor position might be anywhere, so we can't just
-        # display the first page
+        # Saved cursor position might be anywhere, so we can't just display the
+        # first page
         self.makeLineVisible(self.sp.line)
 
-    # save script to given filename. returns True on success.
+    # Save script to given filename. Returns True on success.
     def saveFile(self, fileName):
         fileName = str(util.ensureEndsIn(fileName, ".trelby"))
 
@@ -321,7 +320,7 @@ class MyCtrl(wx.Control):
         self.sp.paginate()
         self.sp.markChanged(True)
 
-    # generate exportable text from given screenplay, or None.
+    # Generate exportable text from given screenplay, or None.
     def getExportText(self, sp):
         inf = []
         inf.append(misc.CheckBoxItem("Include page markers"))
@@ -412,9 +411,9 @@ class MyCtrl(wx.Control):
     def adjustScrollBar(self):
         height = self.GetClientSize().height
 
-        # rough approximation of how many lines fit onto the screen.
-        # accuracy is not that important for this, so we don't even care
-        # about draft / layout mode differences.
+        # Rough approximation of how many lines fit onto the screen. Accuracy is
+        # not that important for this, so we don't even care about
+        # draft / layout mode differences.
         approx = int(((height / self.mm2p) / self.chY) / 1.3)
 
         self.panel.scrollBar.SetScrollbar(self.sp.getTopLine(), approx,
@@ -424,8 +423,8 @@ class MyCtrl(wx.Control):
         if self.sp.clearAutoComp():
             self.Refresh(False)
 
-    # returns true if there are no contents at all and we're not
-    # attached to any file
+    # Returns true if there are no contents at all, and we're not attached to
+    # any file.
     def isUntouched(self):
         if self.fileName or (len(self.sp.lines) > 1) or \
            (len(self.sp.lines[0].text) > 0):
@@ -442,7 +441,7 @@ class MyCtrl(wx.Control):
         if redraw:
             self.Refresh(False)
 
-    # update GUI elements shared by all scripts, like statusbar etc
+    # Update GUI elements shared by all scripts, like statusbar etc.
     def updateCommon(self):
         cur = cfgGl.getType(self.sp.lines[self.sp.line].lt)
 
@@ -467,7 +466,7 @@ class MyCtrl(wx.Control):
         mainFrame.toolBar.EnableTool(ID_EDIT_UNDO, canUndo)
         mainFrame.toolBar.EnableTool(ID_EDIT_REDO, canRedo)
 
-    # apply per-script config
+    # Apply per-script config
     def applyCfg(self, newCfg):
         self.sp.applyCfg(newCfg)
 
@@ -475,7 +474,7 @@ class MyCtrl(wx.Control):
         self.makeLineVisible(self.sp.line)
         self.updateScreen()
 
-    # apply global config
+    # Apply global config
     def applyGlobalCfg(self, newCfgGl, writeCfg = True):
         global cfgGl
 
@@ -483,8 +482,8 @@ class MyCtrl(wx.Control):
 
         cfgGl = copy.deepcopy(newCfgGl)
 
-        # if user has ventured from the old default directory, keep it as
-        # the current one, otherwise set the new default as current.
+        # If user has ventured from the old default directory, keep it as the
+        # current one, otherwise set the new default as current.
         if misc.scriptDir == oldCfgGl.scriptDir:
             misc.scriptDir = cfgGl.scriptDir
 
@@ -500,7 +499,7 @@ class MyCtrl(wx.Control):
 
         self.updateScreen()
 
-        # in case tab colors have been changed
+        # In case tab colors have been changed
         mainFrame.tabCtrl.Refresh(False)
         mainFrame.statusCtrl.Refresh(False)
         mainFrame.noFSBtn.Refresh(False)
@@ -516,10 +515,10 @@ class MyCtrl(wx.Control):
         self.sp.markChanged()
         self.OnPaginate()
 
-    # return an exportable, paginated Screenplay object, or None if for
-    # some reason that's not possible / wanted. 'action' is the name of
-    # the action, e.g. "export" or "print", that'll be done to the script,
-    # and is used in dialogue with the user if needed.
+    # Return an exportable, paginated Screenplay object, or None if for some
+    # reason that's not possible / wanted. 'action' is the name of the action,
+    # e.g. "export" or "print", that'll be done to the script, and is used in
+    # dialogue with the user if needed.
     def getExportable(self, action):
         if cfgGl.checkOnExport:
             line = self.sp.findError(0)[0]
@@ -575,7 +574,7 @@ class MyCtrl(wx.Control):
     def OnLeftUp(self, event):
         self.mouseSelectActive = False
 
-        # to avoid phantom selections (Windows sends some strange events
+        # To avoid phantom selections (Windows sends some strange events
         # sometimes), check if anything worthwhile is actually selected.
         cd = self.sp.getSelectedAsCD(False)
 
@@ -759,7 +758,7 @@ class MyCtrl(wx.Control):
 
         return True
 
-    # page up (dir == -1) or page down (dir == 1) was pressed, handle it.
+    # Page up (dir == -1) or page down (dir == 1) was pressed, handle it.
     # cs = CommandState.
     def pageCmd(self, cs, dir):
         if self.sp.acItems:
@@ -770,8 +769,8 @@ class MyCtrl(wx.Control):
 
         texts, dpages = gd.vm.getScreen(self, False)
 
-        # if user has scrolled with scrollbar so that cursor isn't seen,
-        # just make cursor visible and don't move
+        # If user has scrolled with scrollbar so that cursor isn't seen, just
+        # make cursor visible and don't move.
         if not self.isLineVisible(self.sp.line, texts):
             gd.vm.makeLineVisible(self, self.sp.line, texts)
             cs.needsVisifying = False
@@ -801,7 +800,7 @@ class MyCtrl(wx.Control):
         self.makeLineVisible(self.sp.line)
         self.updateScreen()
 
-    # returns True if something was deleted
+    # Returns True if something was deleted
     def OnCut(self, doUpdate = True, doDelete = True, copyToClip = True):
         marked = self.sp.getMarkedLines()
 
@@ -832,8 +831,8 @@ class MyCtrl(wx.Control):
         tmpSp.lines = cd.lines
 
         if formatted:
-            # have to call paginate, otherwise generateText will not
-            # process all the text
+            # Have to call paginate, otherwise generateText will not process all
+            # the text.
             tmpSp.paginate()
             s = tmpSp.generateText(False)
         else:
@@ -894,7 +893,7 @@ class MyCtrl(wx.Control):
 
         inLines = s.split("\n")
 
-        # shouldn't be possible, but...
+        # Shouldn't be possible, but...
         if len(inLines) == 0:
             return
 
@@ -942,8 +941,8 @@ class MyCtrl(wx.Control):
 
                     break
 
-        # we need to refresh the screen in all cases because pagination
-        # might have changed
+        # We need to refresh the screen in all cases because pagination might
+        # have changed
         self.makeLineVisible(self.sp.line)
         self.updateScreen()
 
@@ -967,8 +966,8 @@ class MyCtrl(wx.Control):
             self.sp.line = self.sp.page2lines(page)[0]
             self.sp.column = 0
 
-        # we need to refresh the screen in all cases because pagination
-        # might have changed
+        # We need to refresh the screen in all cases because pagination might
+        # have changed
         self.makeLineVisible(self.sp.line)
         self.updateScreen()
 
@@ -1048,9 +1047,9 @@ class MyCtrl(wx.Control):
         self.updateScreen()
 
     def OnDeleteElements(self):
-        # even though Screenplay.removeElementTypes does this as well, do
-        # it here so that screen is cleared from the auto-comp box before
-        # we open the dialog
+        # Even though Screenplay.removeElementTypes does this as well, do it
+        # here so that screen is cleared from the auto-comp box before we open
+        # the dialog.
         self.clearAutoComp()
 
         types = []
@@ -1290,7 +1289,7 @@ class MyCtrl(wx.Control):
         def testDeepcopy():
             copy.deepcopy(self.sp)
 
-        # contains (name, func) tuples
+        # Contains (name, func) tuples
         tests = []
 
         for name, var in locals().items():
@@ -1314,8 +1313,8 @@ class MyCtrl(wx.Control):
 
         print("-" * 20)
 
-        # it's annoying having the program ask if you want to save after
-        # running these tests, so pretend the script hasn't changed
+        # It's annoying having the program ask if you want to save after running
+        # these tests, so pretend the script hasn't changed.
         self.sp.markChanged(False)
 
     def cmdTest(self, cs):
@@ -1330,14 +1329,15 @@ class MyCtrl(wx.Control):
 
         if not ev.ControlDown() and not ev.AltDown() and \
                util.isValidInputChar(kc):
-            # WX2.6-FIXME: we should probably use GetUnicodeKey() (dunno
-            # how to get around the isValidInputChar test in the preceding
-            # line, need to test what GetUnicodeKey() returns on
-            # non-input-character events)
+            # WX2.6-FIXME: we should probably use GetUnicodeKey() (idk how to
+            #  get around the isValidInputChar test in the preceding line, need
+            #  to test what GetUnicodeKey() returns on non-input-character
+            #  events)
 
             addChar = True
 
-            # If there's something selected, either remove it, or clear selection.
+            # If there's something selected, either remove it, or clear
+            # selection.
             if self.sp.mark and cfgGl.overwriteSelectionOnInsert:
                 if not self.OnCut(doUpdate = False, copyToClip = False):
                     self.sp.clearMark()
@@ -1401,14 +1401,14 @@ class MyCtrl(wx.Control):
         posX = -1
         cursorY = -1
 
-        # auto-comp FontInfo
+        # Auto-comp FontInfo
         acFi = None
 
         # key = font, value = ([text, ...], [(x, y), ...], [wx.Colour, ...])
         texts = []
 
-        # lists of underline-lines to draw, one for normal text and one
-        # for header texts. list objects are (x, y, width) tuples.
+        # Lists of underline-lines to draw, one for normal text and one for
+        # header texts. List objects are (x, y, width) tuples.
         ulines = []
         ulinesHdr = []
 
@@ -1422,7 +1422,7 @@ class MyCtrl(wx.Control):
         dc.DrawLine(0,0,0,size.height)
 
         if not dpages:
-            # draft mode; draw an infinite page
+            # Draft mode; draw an infinite page.
             lx = util.clamp((size.width - self.pageW) // 2, 0)
             rx = lx + self.pageW
 
@@ -1443,8 +1443,8 @@ class MyCtrl(wx.Control):
 
             dc.SetPen(cfgGui.pageShadowPen)
             for dp in dpages:
-                # + 2 because DrawLine doesn't draw to end point but stops
-                # one pixel short...
+                # + 2 because DrawLine doesn't draw to end point but stops one
+                # pixel short...
                 dc.DrawLine(dp.x1 + 1, dp.y2 + 1, dp.x2 + 1, dp.y2 + 1)
                 dc.DrawLine(dp.x2 + 1, dp.y1 + 1, dp.x2 + 1, dp.y2 + 2)
 
@@ -1576,7 +1576,7 @@ class MyCtrl(wx.Control):
         offset = 5
         selBleed = 2
 
-        # scroll bar width
+        # Scroll bar width
         sbw = 10
 
         size = self.GetClientSize()
@@ -1606,9 +1606,9 @@ class MyCtrl(wx.Control):
 
         posY = cursorY + fi.fy + 5
 
-        # if the box doesn't fit on the screen in the normal position, put
-        # it above the current line. if it doesn't fit there either,
-        # that's just too bad, we don't support window sizes that small.
+        # If the box doesn't fit on the screen in the normal position, put it
+        # above the current line. If it doesn't fit there either, that's just
+        # too bad, we don't support window sizes that small.
         if (posY + h) > size.height:
             posY = cursorY - h - 1
 
@@ -1653,7 +1653,7 @@ class MyFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id, title, name = "Trelby")
 
         if misc.isUnix:
-            # automatically reaps zombies
+            # Automatically reaps zombies
             signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 
         self.clipboard = None
@@ -1865,7 +1865,7 @@ class MyFrame(wx.Frame):
 
         self.tabCtrl.setPageChangedFunc(self.OnPageChange)
 
-        # see OnRightDown
+        # See OnRightDown
         self.rightClickMenu = wx.Menu()
         self.rightClickMenuWithCut = wx.Menu()
 
@@ -2065,7 +2065,7 @@ class MyFrame(wx.Frame):
         for n in names:
             g[n] = wx.NewId()
 
-        # see OnChangeType
+        # See OnChangeType
         g["idToLTMap"] = {
             ID_ELEM_TO_SCENE : screenplay.SCENE,
             ID_ELEM_TO_ACTION : screenplay.ACTION,
@@ -2093,17 +2093,16 @@ class MyFrame(wx.Frame):
         i = self.findPage(panel)
 
         if i != -1:
-            # strip out ".trelby" suffix from tab names (it's a bit
-            # complicated since if we open the same file multiple times,
-            # we have e.g. "foo.trelby" and "foo.trelby<2>", so actually
-            # we just strip out ".trelby" if it's found anywhere in the
-            # string)
+            # Strip out ".trelby" suffix from tab names (it's a bit complicated
+            # since if we open the same file multiple times, we have e.g.
+            # "foo.trelby" and "foo.trelby<2>", so actually we just strip out
+            # ".trelby" if it's found anywhere in the string)
 
             s = text.replace(".trelby", "")
             self.tabCtrl.setTabText(i, s)
 
-    # iterates over all tabs and finds out the corresponding page number
-    # for the given panel.
+    # Iterates over all tabs and finds out the corresponding page number for the
+    # given panel.
     def findPage(self, panel):
         for i in range(self.tabCtrl.getPageCount()):
             p = self.tabCtrl.getPage(i)
@@ -2112,7 +2111,7 @@ class MyFrame(wx.Frame):
 
         return -1
 
-    # get list of MyCtrl objects for all open scripts
+    # Get list of MyCtrl objects for all open scripts
     def getCtrls(self):
         l = []
 
@@ -2121,7 +2120,7 @@ class MyFrame(wx.Frame):
 
         return l
 
-    # returns True if any open script has been modified
+    # Returns True if any open script has been modified
     def isModifications(self):
         for c in self.getCtrls():
             if c.sp.isModified():
@@ -2145,8 +2144,7 @@ class MyFrame(wx.Frame):
                 for key in cmd.keys:
                     self.kbdCommands[key] = cmd
 
-    # open script, in the current tab if it's untouched, or in a new one
-    # otherwise
+    # Open script in the current tab if it's untouched, else in a new one.
     def openScript(self, filename):
         if not self.tabCtrl.getPage(self.findPage(self.panel))\
                .ctrl.isUntouched():
@@ -2176,8 +2174,8 @@ class MyFrame(wx.Frame):
         self.panel.ctrl.SetFocus()
 
     def OnMenuHighlight(self, event):
-        # default implementation modifies status bar, so we need to
-        # override it and do nothing
+        # Default implementation modifies status bar, so we need to override it
+        # and do nothing.
         pass
 
     def OnPageChange(self, page):
@@ -2201,7 +2199,7 @@ class MyFrame(wx.Frame):
             pageNr = 0
 
         if pageNr == current:
-            # only one tab, nothing to do
+            # Only one tab, nothing to do
             return
 
         self.tabCtrl.selectPage(pageNr)
@@ -2599,15 +2597,15 @@ class MyApp(wx.App):
             if s:
                 cfgGl.load(s)
         else:
-            # we want to write out a default config file at startup for
-            # various reasons, if no default config file yet exists
+            # We want to write out a default config file at startup for various
+            # reasons, if no default config file yet exists.
             util.writeToFile(gd.confFilename, cfgGl.save(), None)
 
         refreshGuiConfig()
 
-        # cfgGl.scriptDir is the directory used on startup, while
-        # misc.scriptDir is updated every time the user opens something in
-        # a different directory.
+        # cfgGl.scriptDir is the directory used on startup, while misc.scriptDir
+        # is updated every time the user opens something in a different
+        # directory.
         misc.scriptDir = cfgGl.scriptDir
 
         if util.fileExists(gd.stateFilename):
@@ -2632,7 +2630,7 @@ class MyApp(wx.App):
 
         mainFrame.Show(True)
 
-        # windows needs this for some reason
+        # Windows needs this for some reason
         mainFrame.panel.ctrl.SetFocus()
 
         self.SetTopWindow(mainFrame)

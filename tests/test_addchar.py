@@ -1,7 +1,7 @@
 import screenplay as scr
 import u
 
-# tests adding characters, i.e. normal typing
+# Tests adding characters, i.e. normal typing
 
 def testSpaceAtEOL():
     sp = u.load()

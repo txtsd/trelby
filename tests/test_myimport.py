@@ -24,7 +24,7 @@ def testImportCeltx()->None:
 
     assert importedLines is not None
 
-    # in order to compare the screenplays, we need to reformat it with the same configuration as the loaded one
+    # In order to compare the screenplays, we need to reformat it with the same configuration as the loaded one
     importedScreenplay = u.new()
     importedScreenplay.lines = importedLines
     importedScreenplay.reformatAll()

@@ -31,7 +31,7 @@ class MyCharMap(wx.Window):
 
         self.selected = None
 
-        # all valid characters
+        # All valid characters
         self.chars = ""
 
         for i in range(256):
@@ -43,13 +43,13 @@ class MyCharMap(wx.Window):
         if len(self.chars) % 16:
             self.rows += 1
 
-        # offset of grid
+        # Offset of grid
         self.offset = 5
 
-        # size of a single character cell
+        # Size of a single character cell
         self.cellSize = 32
 
-        # size of the zoomed-in character boxes
+        # Size of the zoomed-in character boxes
         self.boxSize = 60
 
         self.smallFont = util.createPixelFont(18,

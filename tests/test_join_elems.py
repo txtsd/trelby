@@ -1,12 +1,12 @@
 import screenplay as scr
 import u
 
-# tests element joining
+# Tests element joining
 
-# we used to have a bug where if the latter element contained a forced
-# linebreak the result was invalid. this one tests the case where the
-# forced linebreak is on the first line of the element, the second one
-# where it is on the third line.
+# We used to have a bug where if the latter element contained a forced linebreak
+# the result was invalid. This one tests the case where the forced linebreak is
+# on the first line of the element, the second one where it is on the third
+# line.
 def testForcedLb():
     sp = u.new()
 

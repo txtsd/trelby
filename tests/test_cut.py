@@ -1,7 +1,7 @@
 import screenplay as scr
 import u
 
-# tests deleting selected areas of text
+# Tests deleting selected areas of text
 
 def testBasic():
     sp = u.load()
@@ -21,9 +21,9 @@ def testLastDelete():
     sp.cmd("moveUp", count = 4)
     sp.cmd("moveLineStart")
 
-    # we used to have a bug where if we deleted e.g. the last two lines of
-    # the script, and that element was longer, we didn't mark the
-    # third-last line as LB_LAST, and then it crashed in rewrapPara.
+    # We used to have a bug where if we deleted e.g. the last two lines of the
+    # script, and that element was longer, we didn't mark the third-last line as
+    # LB_LAST, and then it crashed in rewrapPara.
     sp.getSelectedAsCD(True)
 
 def testEndPrevPara():
@@ -37,15 +37,14 @@ def testEndPrevPara():
 
     sp.getSelectedAsCD(True)
 
-    # test that when deleting the last lines of an element we correctly
-    # flag the preceding line as the new last line.
+    # Test that when deleting the last lines of an element we correctly flag the
+    # preceding line as the new last line.
 
     assert sp.lines[2].lb == scr.LB_LAST
     assert sp.lines[3].lt == scr.CHARACTER
 
-# we used to have a bug where joining two elements when the latter one
-# contained a forced linebreak didn't convert it properly to the preceding
-# element's type.
+# We used to have a bug where joining two elements when the latter one contained
+# a forced linebreak didn't convert it properly to the preceding element's type.
 def testForcedLb():
     sp = u.load()
 
@@ -58,9 +57,9 @@ def testForcedLb():
     sp.getSelectedAsCD(True)
     sp._validate()
 
-# we used to have a bug where if we deleted the first line of an element
-# plus at least some of the later lines, the rest of the element was
-# erroneously joined to the preceding element.
+# We used to have a bug where if we deleted the first line of an element plus at
+# least some of the later lines, the rest of the element was erroneously joined
+# to the preceding element.
 def testFirstDelete():
     sp = u.load()
 
@@ -79,9 +78,9 @@ def testFirstDelete():
 
     sp._validate()
 
-# test that when joining two elements of different type, the latter of
-# which contains forced linebreaks, that the whole of the latter element
-# is rewrapped correctly.
+# Test that when joining two elements of different type, the latter of which
+# contains forced linebreaks, that the whole of the latter element is rewrapped
+# correctly.
 def testTypeConvert():
     sp = u.load()
 

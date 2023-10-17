@@ -1,14 +1,14 @@
 import pml
 import util
 
-# a script's headers.
+# A script's headers
 class Headers:
 
     def __init__(self):
-        # list of HeaderString objects
+        # List of HeaderString objects
         self.hdrs = []
 
-        # how many empty lines after the headers
+        # How many empty lines after the headers
         self.emptyLinesAfter = 1
 
     # create standard headers
@@ -20,8 +20,8 @@ class Headers:
 
         self.hdrs.append(h)
 
-    # return how many header lines there are. includes number of empty
-    # lines after possible headers.
+    # Return how many header lines there are
+    # Includes number of empty lines after possible headers
     def getNrOfLines(self):
         nr = 0
 
@@ -33,28 +33,29 @@ class Headers:
 
         return nr
 
-    # add headers to given page. 'pageNr' must be a string.
+    # Add headers to given page
+    # 'pageNr' must be a string
     def generatePML(self, page, pageNr, cfg):
         for h in self.hdrs:
             h.generatePML(page, pageNr, cfg)
 
-# a single header string
+# A single header string
 class HeaderString:
     def __init__(self):
 
-        # which line, 1-based
+        # Which line, 1-based
         self.line = 1
 
         # x offset, in characters
         self.xoff = 0
 
-        # contents of string
+        # Contents of string
         self.text = ""
 
-        # whether this is centered in the horizontal direction
+        # Whether this is centered in the horizontal direction
         self.align = util.ALIGN_CENTER
 
-        # style flags
+        # Style flags
         self.isBold = False
         self.isItalic = False
         self.isUnderlined = False
@@ -89,11 +90,11 @@ class HeaderString:
 
         page.add(pml.TextOp(text, x, y, fs, fl, self.align))
 
-    # parse information from s, which must be a string created by __str__,
-    # and set object state accordingly. keeps default settings on any
-    # errors, does not throw any exceptions.
+    # Parse information from s, which must be a string created by __str__, and
+    # set object state accordingly. keeps default settings on any errors, does
+    # not throw any exceptions.
     #
-    # sample of the format: '1,0,r,,${PAGE}.'
+    # Sample of the format: '1,0,r,,${PAGE}.'
     def load(self, s):
         a = util.fromUTF8(s).split(",", 4)
 

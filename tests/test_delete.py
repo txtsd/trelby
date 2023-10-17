@@ -1,7 +1,7 @@
 import screenplay as scr
 import u
 
-# tests delete commands
+# Tests delete commands
 
 def testBackStart():
     sp = u.load()
@@ -67,9 +67,9 @@ def testBackLbForced():
     assert sp.lines[33].text == "brightyellow package at their feet."
     assert sp.lines[33].lb == scr.LB_LAST
 
-# test that when joining two elements of different type, the latter of
-# which contains forced linebreaks, that the whole of the latter element
-# is rewrapped correctly.
+# Test that when joining two elements of different type, the latter of which
+# contains forced linebreaks, that the whole of the latter element is rewrapped
+# correctly.
 def testBackLbForcedTypeConvert():
     sp = u.load()
 
@@ -83,9 +83,9 @@ def testBackLbForcedTypeConvert():
 
 # FIXME: more tests for forward deletion
 
-# test that when joining two elements of different type, the latter of
-# which contains forced linebreaks, that the whole of the latter element
-# is rewrapped correctly.
+# Test that when joining two elements of different type, the latter of which
+# contains forced linebreaks, that the whole of the latter element is rewrapped
+# correctly.
 def testForwardLbForcedTypeConvert():
     sp = u.load()
 

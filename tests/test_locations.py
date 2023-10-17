@@ -1,9 +1,9 @@
 import locations
 import u
 
-# test locations.Locations
+# Test locations.Locations
 
-# helper test function.
+# Helper test function.
 def ch(locsOld, scenes, locsNew):
     loc = locations.Locations()
     loc.locations = locsOld

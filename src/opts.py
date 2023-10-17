@@ -1,19 +1,19 @@
 import sys
 
 # TODO: Python, at least up to 2.4, does not support Unicode command line
-# arguments on Windows. Since UNIXes use UTF-8, just assume all command
-# line arguments are UTF-8 for now, and silently ignore any coding errors
-# that may result on Windows in some cases.
+#   arguments on Windows. Since UNIXes use UTF-8, just assume all command line
+#   arguments are UTF-8 for now, and silently ignore any coding errors that may
+#   result on Windows in some cases.
 def init():
     global isTest, conf, filenames
 
-    # script filenames to load
+    # Script filenames to load
     filenames = []
 
-    # name of config file to use, or None
+    # Name of config file to use, or None.
     conf = None
 
-    # are we in test mode
+    # Are we in test mode
     isTest = False
 
     i = 1

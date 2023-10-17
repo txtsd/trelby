@@ -17,7 +17,7 @@ def init():
 
         initDone = True
 
-# return new, empty Screenplay
+# Return new, empty Screenplay
 def new():
     init()
 
@@ -28,7 +28,7 @@ def fixtureFilePath(filePathRelativeToFixturesDir: str) -> str:
 
     return os.path.join(location, filePathRelativeToFixturesDir)
 
-# load script from the given file, relative to the current script directory
+# Load script from the given file, relative to the current script directory
 def load(filename = "test.trelby"):
     init()
     filename = fixtureFilePath(filename)
@@ -36,7 +36,7 @@ def load(filename = "test.trelby"):
     return screenplay.Screenplay.load(open(filename, "r").read(),
                                       config.ConfigGlobal())[0]
 
-# load script from given string
+# Load script from given string
 def loadString(s: str):
     init()
 

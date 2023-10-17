@@ -1,25 +1,25 @@
 import pml
 
-# character widths and general font information for each font. acquired
-# from the PDF font metrics. ((width / 1000) * point_size) / 72.0 = how
-# many inches wide that character is.
+# Character widths and general font information for each font. Acquired from the
+# PDF font metrics. ((width / 1000) * point_size) / 72.0 = how many inches wide
+# that character is.
 #
-# all Courier-* fonts have characters 600 units wide.
+# All Courier-* fonts have characters 600 units wide
 
-# get the FontMetrics object for the given style
+# Get the FontMetrics object for the given style
 def getMetrics(style):
-    # the "& 15" gets rid of the underline flag
+    # The "& 15" gets rid of the underline flag
     return _fontMetrics[style & 15]
 
 class FontMetrics:
     def __init__(self, fontWeight, flags, bbox, italicAngle, ascent, descent,
                  capHeight, stemV, stemH, xHeight, widths):
 
-        # character widths in an array of 256 integers, or None for the
-        # Courier fonts.
+        # Character widths in an array of 256 integers, or None for the Courier
+        # fonts.
         self.widths = widths
 
-        # see the PDF spec for the details on what these are.
+        # See the PDF spec for the details on what these are
         self.fontWeight = fontWeight
         self.flags = flags
         self.bbox = bbox
@@ -31,8 +31,7 @@ class FontMetrics:
         self.stemH = stemH
         self.xHeight = xHeight
 
-    # calculate width of 'text' in 'size', and return it in 1/72 inch
-    # units.
+    # Calculate width of 'text' in 'size', and return it in 1/72 inch units.
     def getTextWidth(self, text, size):
         widths = self.widths
 

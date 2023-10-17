@@ -17,7 +17,7 @@ class HeadersDlg(wx.Dialog):
         self.cfgGl = cfgGl
         self.applyFunc = applyFunc
 
-        # whether some events are blocked
+        # Whether some events are blocked
         self.block = False
 
         self.hdrIndex = -1
@@ -117,8 +117,8 @@ class HeadersDlg(wx.Dialog):
 
         vsizer2 = wx.BoxSizer(wx.VERTICAL)
 
-        # wxGTK adds way more space by default than wxMSW between the
-        # items, have to adjust for that
+        # wxGTK adds way more space by default than wxMSW between the items
+        # Have to adjust for that
         pad = 0
         if misc.isWindows:
             pad = 5
@@ -160,7 +160,7 @@ class HeadersDlg(wx.Dialog):
 
         self.Bind(wx.EVT_LISTBOX, self.OnStringsLb, id=self.stringsLb.GetId())
 
-        # list of widgets that are specific to editing the selected string
+        # List of widgets that are specific to editing the selected string
         self.widList = [ self.textEntry, self.xoffEntry, self.alignCombo,
                          self.lineEntry, self.boldCb, self.italicCb,
                          self.underlinedCb ]
@@ -209,8 +209,8 @@ class HeadersDlg(wx.Dialog):
     def OnKillFocus(self, event):
         self.OnMisc()
 
-        # if we don't call this, the spin entry on wxGTK gets stuck in
-        # some weird state
+        # If we don't call this, the spin entry on wxGTK gets stuck in some
+        # weird state
         event.Skip()
 
     def OnStringsLb(self, event = None):
@@ -235,7 +235,7 @@ class HeadersDlg(wx.Dialog):
 
         self.updateGui()
 
-    # update listbox
+    # Update listbox
     def updateGui(self):
         self.stringsLb.Clear()
 
@@ -251,7 +251,7 @@ class HeadersDlg(wx.Dialog):
 
         self.updateHeaderGui()
 
-    # update selected header stuff
+    # Update selected header stuff
     def updateHeaderGui(self):
         if self.hdrIndex == -1:
             for w in self.widList:

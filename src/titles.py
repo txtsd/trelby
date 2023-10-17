@@ -2,14 +2,14 @@ import pml
 import util
 import functools
 
-# a script's title pages.
+# A script's title pages
 class Titles:
 
     def __init__(self):
-        # list of lists of TitleString objects
+        # List of lists of TitleString objects
         self.pages = []
 
-    # create semi-standard title page
+    # Create semi-standard title page
     def addDefaults(self):
         a = []
 
@@ -24,7 +24,7 @@ class Titles:
 
         self.pages.append(a)
 
-    # add title pages to doc.
+    # Add title pages to doc
     def generatePages(self, doc):
         for page in self.pages:
             pg = pml.Page(doc)
@@ -34,7 +34,7 @@ class Titles:
 
             doc.add(pg)
 
-    # return a (rough) RTF fragment representation of title pages
+    # Return a (rough) RTF fragment representation of title pages
     def generateRTF(self):
         s = util.String()
 
@@ -46,8 +46,8 @@ class Titles:
 
         return str(s)
 
-    # sort the title strings in y,x order (makes editing them easier
-    # and RTF output better)
+    # Sort the title strings in y,x order (makes editing them easier and RTF
+    # output better)
     def sort(self):
         def cmpfunc(a, b):
             return ((a.y > b.y) - (a.y < b.y)) or ((a.x > b.x) - (a.x < a.y))
@@ -55,34 +55,34 @@ class Titles:
         for page in self.pages:
             page = sorted(page, key=functools.cmp_to_key(cmpfunc))
 
-# a single string displayed on a title page
+# A single string displayed on a title page
 class TitleString:
     def __init__(self, items, x = 0.0, y = 0.0, isCentered = True,
                  isBold = False, size = 12, font = pml.COURIER):
 
-        # list of text strings
+        # List of text strings
         self.items = items
 
-        # position
+        # Position
         self.x = x
         self.y = y
 
-        # size in points
+        # Size in points
         self.size = size
 
-        # whether this is centered in the horizontal direction
+        # Whether this is centered in the horizontal direction
         self.isCentered = isCentered
 
-        # whether this is right-justified (xpos = rightmost edge of last
+        # Whether this is right-justified (xpos = rightmost edge of last
         # character)
         self.isRightJustified = False
 
-        # style flags
+        # Style flags
         self.isBold = isBold
         self.isItalic = False
         self.isUnderlined = False
 
-        # font
+        # Font
         self.font = font
 
     def getStyle(self):
@@ -132,7 +132,7 @@ class TitleString:
 
             y += util.getTextHeight(self.size)
 
-    # return a (rough) RTF fragment representation of this string
+    # Return a (rough) RTF fragment representation of this string
     def generateRTF(self):
         s = ""
 
@@ -157,11 +157,11 @@ class TitleString:
 
         return s
 
-    # parse information from s, which must be a string created by __str__,
-    # and set object state accordingly. keeps default settings on any
-    # errors, does not throw any exceptions.
+    # Parse information from s, which must be a string created by __str__, and
+    # set object state accordingly. Keeps default settings on any errors, does
+    # not throw any exceptions.
     #
-    # sample of the format: '0.000000,70.000000,24,cb,Helvetica,,text here'
+    # Sample of the format: '0.000000,70.000000,24,cb,Helvetica,,text here'
     def load(self, s):
         a = util.fromUTF8(s).split(",", 6)
 

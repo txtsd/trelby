@@ -1,8 +1,8 @@
 import mypickle
 import util
 
-# manages location-information for a single screenplay. a "location" is a
-# single place that can be referred to using multiple scene names, e.g.
+# Manages location-information for a single screenplay. a "location" is a single
+# place that can be referred to using multiple scene names, e.g.
 #  INT. MOTEL ROOM - DAY
 #  INT. MOTEL ROOM - DAY - 2 HOURS LATER
 #  INT. MOTEL ROOM - NIGHT
@@ -21,8 +21,8 @@ class Locations:
 
         self.__class__.cvars.setDefaults(self)
 
-        # self.locations is a list of lists of strings, where the inner
-        # lists list scene names to combine into one location. e.g.
+        # self.locations is a list of lists of strings, where the inner lists
+        # list scene names to combine into one location. e.g.
         # [
         #  [
         #   "INT. ROOM 413 - DAY",
@@ -30,22 +30,21 @@ class Locations:
         #  ]
         # ]
 
-    # load from string 's'. does not throw any exceptions and silently
+    # Load from string 's'. Eoes not throw any exceptions and silently
     # ignores any errors.
     def load(self, s):
         self.cvars.load(self.cvars.makeVals(s), "", self)
 
-    # save to a string and return that.
+    # Save to a string and return that
     def save(self):
         return self.cvars.save("", self)
 
-    # refresh location list against the given scene names (in the format
-    # returned by Screenplay.getSceneNames()). removes unknown and
-    # duplicate scenes from locations, and if that results in a location
-    # with 0 scenes, removes that location completely. also upper-cases
-    # all the scene names, sorts the lists, first each location list's
-    # scenes, and then the locations based on the first scene of the
-    # location.
+    # Refresh location list against the given scene names (in the format
+    # returned by Screenplay.getSceneNames()). Removes unknown and duplicate
+    # scenes from locations, and if that results in a location with 0 scenes,
+    # removes that location completely. Also, upper-cases all the scene names,
+    # sorts the lists, first each location list's scenes, and then the locations
+    # based on the first scene of the location.
     def refresh(self, sceneNames):
         locs = []
 

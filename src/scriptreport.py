@@ -44,10 +44,10 @@ class ScriptReport:
         tf.addText("Max / avg. scene length in lines: %d / %.2f" % (
             self.sr.longestScene, self.sr.avgScene))
 
-        # lengths of action elements
+        # Lengths of action elements
         actions = []
 
-        # length of current action element
+        # Length of current action element
         curLen = 0
 
         for ln in ls:
@@ -70,7 +70,7 @@ class ScriptReport:
 
         tf.addSpace(4.0)
 
-        # avoid divide-by-zero
+        # Avoid divide-by-zero
         if len(actions) > 0:
             maxA = max(actions)
             avgA = sum(actions) / float(len(actions))

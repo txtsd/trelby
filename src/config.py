@@ -1,5 +1,5 @@
-# see fileformat.txt for more detailed information about the various
-# defines found here.
+# See fileformat.txt for more detailed information about the various defines
+# found here
 
 from error import ConfigError
 import misc
@@ -17,7 +17,7 @@ if "TRELBY_TESTING" in os.environ:
 else:
     import wx
 
-# mapping from character to linebreak
+# Mapping from character to linebreak
 _char2lb = {
     '>' : screenplay.LB_SPACE,
     '+' : screenplay.LB_SPACE2,
@@ -29,7 +29,7 @@ _char2lb = {
 # reverse to above
 _lb2char = {}
 
-# what string each linebreak type should be mapped to.
+# What string each linebreak type should be mapped to
 _lb2str = {
     screenplay.LB_SPACE  : " ",
     screenplay.LB_SPACE2 : "  ",
@@ -38,59 +38,59 @@ _lb2str = {
     screenplay.LB_LAST   : "\n"
     }
 
-# contains a TypeInfo for each element type
+# Contains a TypeInfo for each element type
 _ti = []
 
-# mapping from character to TypeInfo
+# Mapping from character to TypeInfo
 _char2ti = {}
 
-# mapping from line type to TypeInfo
+# Mapping from line type to TypeInfo
 _lt2ti = {}
 
-# mapping from element name to TypeInfo
+# Mapping from element name to TypeInfo
 _name2ti = {}
 
-# page break indicators. do not change these values as they're saved to
-# the config file.
+# Page break indicators
+# Do not change these values as they're saved to the config file
 PBI_NONE = 0
 PBI_REAL = 1
 PBI_REAL_AND_UNADJ = 2
 
-# for range checking above value
+# For range checking above value
 PBI_FIRST, PBI_LAST = PBI_NONE, PBI_REAL_AND_UNADJ
 
-# constants for identifying PDFFontInfos
+# Constants for identifying PDFFontInfos
 PDF_FONT_NORMAL = "Normal"
 PDF_FONT_BOLD = "Bold"
 PDF_FONT_ITALIC = "Italic"
 PDF_FONT_BOLD_ITALIC = "Bold-Italic"
 
-# scrolling  directions
+# Scrolling directions
 SCROLL_UP = 0
 SCROLL_DOWN = 1
 SCROLL_CENTER = 2
 
-# construct reverse lookup tables
+# Construct reverse lookup tables
 
 for k, v in list(_char2lb.items()):
     _lb2char[v] = k
 
 del k, v
 
-# non-changing information about an element type
+# Non-changing information about an element type
 class TypeInfo:
     def __init__(self, lt, char, name):
 
-        # line type, e.g. screenplay.ACTION
+        # Line type, e.g. screenplay.ACTION
         self.lt = lt
 
-        # character used in saved scripts, e.g. "."
+        # Character used in saved scripts, e.g. "."
         self.char = char
 
-        # textual name, e.g. "Action"
+        # Textual name, e.g. "Action"
         self.name = name
 
-# text type
+# Text type
 class TextType:
     cvars = None
 
@@ -111,28 +111,28 @@ class TextType:
     def load(self, vals, prefix):
         self.cvars.load(vals, prefix, self)
 
-# script-specific information about an element type
+# Script-specific information about an element type
 class Type:
     cvars = None
 
     def __init__(self, lt):
 
-        # line type
+        # Line type
         self.lt = lt
 
-        # pointer to TypeInfo
+        # Pointer to TypeInfo
         self.ti = lt2ti(lt)
 
-        # text types, one for screen and one for export
+        # Text types, one for screen and one for export
         self.screen = TextType()
         self.export = TextType()
 
         if not self.__class__.cvars:
             v = self.__class__.cvars = mypickle.Vars()
 
-            # these two are how much empty space to insert a) before the
-            # element b) between the element's lines, in units of line /
-            # 10.
+            # These two are how much empty space to insert
+            #   a) before the element
+            #   b) between the element's lines in units of (line / 10)
             v.addInt("beforeSpacing", 0, "BeforeSpacing", 0, 50)
             v.addInt("intraSpacing", 0, "IntraSpacing", 0, 20)
 
@@ -159,26 +159,26 @@ class Type:
         self.screen.load(vals, prefix + "Screen/")
         self.export.load(vals, prefix + "Export/")
 
-# global information about an element type
+# Global information about an element type
 class TypeGlobal:
     cvars = None
 
     def __init__(self, lt):
 
-        # line type
+        # Line type
         self.lt = lt
 
-        # pointer to TypeInfo
+        # Pointer to TypeInfo
         self.ti = lt2ti(lt)
 
         if not self.__class__.cvars:
             v = self.__class__.cvars = mypickle.Vars()
 
-            # what type of element to insert when user presses enter or tab.
+            # What type of element to insert when user presses enter or tab
             v.addElemName("newTypeEnter", screenplay.ACTION, "NewTypeEnter")
             v.addElemName("newTypeTab", screenplay.ACTION, "NewTypeTab")
 
-            # what element to switch to when user hits tab / shift-tab.
+            # What element to switch to when user hits tab or shift-tab
             v.addElemName("nextTypeTab", screenplay.ACTION, "NextTypeTab")
             v.addElemName("prevTypeTab", screenplay.ACTION, "PrevTypeTab")
 
@@ -196,7 +196,7 @@ class TypeGlobal:
 
         self.cvars.load(vals, prefix, self)
 
-# command (an action in the main program)
+# Command (an action in the main program)
 class Command:
     cvars = None
 
@@ -204,26 +204,26 @@ class Command:
                  isFixed = False, isMenu = False,
                  scrollDirection = SCROLL_CENTER):
 
-        # name, e.g. "MoveLeft"
+        # Name, e.g. "MoveLeft"
         self.name = name
 
-        # textual description
+        # Textual description
         self.desc = desc
 
-        # default keys (list of serialized util.Key objects (ints))
+        # Default keys (list of serialized util.Key objects (ints))
         self.defKeys = defKeys
 
-        # is this a movement command
+        # Is this a movement command
         self.isMovement = isMovement
 
-        # some commands & their keys (Tab, Enter, Quit, etc) are fixed and
+        # Some commands & their keys (Tab, Enter, Quit, etc.) are fixed and
         # can't be changed
         self.isFixed = isFixed
 
-        # is this a menu item
+        # Is this a menu item
         self.isMenu = isMenu
 
-        # which way the command wants to scroll the page
+        # Which way the command wants to scroll the page
         self.scrollDirection = scrollDirection
 
         if not self.__class__.cvars:
@@ -234,7 +234,7 @@ class Command:
 
             v.makeDicts()
 
-        # this is not actually needed but let's keep it for consistency
+        # This is not actually needed but let's keep it for consistency
         self.__class__.cvars.setDefaults(self)
 
         self.keys = copy.deepcopy(self.defKeys)
@@ -264,13 +264,13 @@ class Command:
         self.cvars.load(vals, prefix, self)
 
         if len(self.keys) == 0:
-            # we have a new command in the program not found in the old
-            # config file
+            # We have a new command in the program not found in the old config
+            # file
             self.keys = tmp
         elif self.keys[0] == 0:
             self.keys = []
 
-        # weed out invalid bindings
+        # Weed out invalid bindings
         tmp2 = self.keys
         self.keys = []
 
@@ -279,24 +279,24 @@ class Command:
             if not k2.isValidInputChar():
                 self.keys.append(k)
 
-# information about one screen font
+# Information about one screen font
 class FontInfo:
     def __init__(self):
         self.font = None
 
-        # font width and height
+        # Font width and height
         self.fx = 1
         self.fy = 1
 
-# information about one PDF font
+# Information about one PDF font
 class PDFFontInfo:
     cvars = None
 
-    # list of characters not allowed in pdfNames
+    # List of characters not allowed in pdfNames
     invalidChars = None
 
     def __init__(self, name, style):
-        # our name for the font (one of the PDF_FONT_* constants)
+        # Our name for the font (one of the PDF_FONT_* constants)
         self.name = name
 
         # 2 lowest bits of pml.TextOp.flags
@@ -305,12 +305,11 @@ class PDFFontInfo:
         if not self.__class__.cvars:
             v = self.__class__.cvars = mypickle.Vars()
 
-            # name to use in generated PDF file (CourierNew, MyFontBold,
-            # etc.). if empty, use the default PDF Courier font.
+            # Name to use in generated PDF file (CourierNew, MyFontBold, etc.)
+            # If empty, use the default PDF Courier font.
             v.addStrLatin1("pdfName", "", "Name")
 
-            # filename for the font to embed, or empty meaning don't
-            # embed.
+            # Filename for the font to embed, or empty meaning don't embed.
             v.addStrUnicode("filename", "", "Filename")
 
             v.makeDicts()
@@ -318,10 +317,10 @@ class PDFFontInfo:
             tmp = ""
 
             for i in range(256):
-                # the OpenType font specification 1.4, of all places,
-                # contains the most detailed discussion of characters
-                # allowed in Postscript font names, in the section on
-                # 'name' tables, describing name ID 6 (=Postscript name).
+                # The OpenType font specification 1.4, of all places, contains
+                # the most detailed discussion of characters allowed in
+                # Postscript font names, in the section on 'name' tables,
+                # describing name ID 6 (=Postscript name).
                 if (i <= 32) or (i >= 127) or chr(i) in (
                     "[", "]", "(", ")", "{", "}", "<", ">", "/", "%"):
                     tmp += chr(i)
@@ -340,16 +339,17 @@ class PDFFontInfo:
 
         self.cvars.load(vals, prefix, self)
 
-    # fix up invalid values.
+    # Fix up invalid values
     def refresh(self):
         self.pdfName = util.deleteChars(self.pdfName, self.invalidChars)
 
-        # to avoid confused users not understanding why their embedded
-        # font isn't working, put in an arbitrary font name if needed
+        # To avoid confused users not understanding why their embedded font
+        # isn't working, put in an arbitrary font name if needed.
         if self.filename and not self.pdfName:
             self.pdfName = "SampleFontName"
 
-# per-script config, each script has its own one of these.
+# Per-script config
+# Each script has its own one of these
 class Config:
     cvars = None
 
@@ -360,10 +360,10 @@ class Config:
 
         self.__class__.cvars.setDefaults(self)
 
-        # type configs, key = line type, value = Type
+        # Type configs, key = line type, value = Type
         self.types = { }
 
-        # element types
+        # Element types
         t = Type(screenplay.SCENE)
         t.beforeSpacing = 10
         t.indent = 0
@@ -432,7 +432,7 @@ class Config:
         t.export.isItalic = True
         self.types[t.lt] = t
 
-        # pdf font configs, key = PDF_FONT_*, value = PdfFontInfo
+        # Pdf font configs, key = PDF_FONT_*, value = PdfFontInfo
         self.pdfFonts = { }
 
         for name, style in (
@@ -447,62 +447,62 @@ class Config:
     def setupVars(self):
         v = self.__class__.cvars = mypickle.Vars()
 
-        # font size used for PDF generation, in points
+        # Font size used for PDF generation, in points
         v.addInt("fontSize", 12, "FontSize", 4, 72)
 
-        # margins
+        # Margins
         v.addFloat("marginBottom", 25.4, "Margin/Bottom", 0.0, 900.0)
         v.addFloat("marginLeft", 38.1, "Margin/Left", 0.0, 900.0)
         v.addFloat("marginRight", 25.4, "Margin/Right", 0.0, 900.0)
         v.addFloat("marginTop", 12.7, "Margin/Top", 0.0, 900.0)
 
-        # paper size
+        # Paper size
         v.addFloat("paperHeight", 297.0, "Paper/Height", 100.0, 1000.0)
         v.addFloat("paperWidth", 210.0, "Paper/Width", 50.0, 1000.0)
 
-        # leave at least this many action lines on the end of a page
+        # Leave at least this many action lines on the end of a page
         v.addInt("pbActionLines", 2, "PageBreakActionLines", 1, 30)
 
-        # leave at least this many dialogue lines on the end of a page
+        # Leave at least this many dialogue lines on the end of a page
         v.addInt("pbDialogueLines", 2, "PageBreakDialogueLines", 1, 30)
 
-        # whether scene continueds are enabled
+        # Whether scene continueds are enabled
         v.addBool("sceneContinueds", False, "SceneContinueds")
 
-        # scene continued text indent width
+        # Scene continued text indent width
         v.addInt("sceneContinuedIndent", 45, "SceneContinuedIndent", -20, 80)
 
-        # whether to include scene numbers
+        # Whether to include scene numbers
         v.addBool("pdfShowSceneNumbers", False, "ShowSceneNumbers")
 
-        # whether to include PDF TOC
+        # Whether to include PDF TOC
         v.addBool("pdfIncludeTOC", True, "IncludeTOC")
 
-        # whether to show PDF TOC by default
+        # Whether to show PDF TOC by default
         v.addBool("pdfShowTOC", True, "ShowTOC")
 
-        # whether to open PDF document on current page
+        # Whether to open PDF document on current page
         v.addBool("pdfOpenOnCurrentPage", True, "OpenOnCurrentPage")
 
-        # whether to remove Note elements in PDF output
+        # Whether to remove Note elements in PDF output
         v.addBool("pdfRemoveNotes", False, "RemoveNotes")
 
-        # whether to draw rectangles around the outlines of Note elements
+        # Whether to draw rectangles around the outlines of Note elements
         v.addBool("pdfOutlineNotes", True, "OutlineNotes")
 
-        # whether to draw rectangle showing margins
+        # Whether to draw rectangle showing margins
         v.addBool("pdfShowMargins", False, "ShowMargins")
 
-        # whether to show line numbers next to each line
+        # Whether to show line numbers next to each line
         v.addBool("pdfShowLineNumbers", False, "ShowLineNumbers")
 
-        # cursor position, line
+        # Cursor position, line
         v.addInt("cursorLine", 0, "Cursor/Line", 0, 1000000)
 
-        # cursor position, column
+        # Cursor position, column
         v.addInt("cursorColumn", 0, "Cursor/Column", 0, 1000000)
 
-        # various strings we add to the script
+        # Various strings we add to the script
         v.addStrLatin1("strMore", "(MORE)", "String/MoreDialogue")
         v.addStrLatin1("strContinuedPageEnd", "(CONTINUED)",
                        "String/ContinuedPageEnd")
@@ -513,7 +513,7 @@ class Config:
 
         v.makeDicts()
 
-    # load config from string 's'. does not throw any exceptions, silently
+    # Load config from string 's'. does not throw any exceptions, silently
     # ignores any errors, and always leaves config in an ok state.
     def load(self, s):
         vals = self.cvars.makeVals(s)
@@ -528,7 +528,7 @@ class Config:
 
         self.recalc()
 
-    # save config into a string and return that.
+    # save config into a string and return that
     def save(self):
         s = self.cvars.save("", self)
 
@@ -540,15 +540,15 @@ class Config:
 
         return s
 
-    # fix up all invalid config values and recalculate all variables
-    # dependent on other variables.
+    # Fix up all invalid config values and recalculate all variables dependent
+    # on other variables
     #
-    # if doAll is False, enforces restrictions only on a per-variable
-    # basis, e.g. doesn't modify variable v2 based on v1's value. this is
-    # useful when user is interactively modifying v1, and it temporarily
-    # strays out of bounds (e.g. when deleting the old text in an entry
-    # box, thus getting the minimum value), which would then possibly
-    # modify the value of other variables which is not what we want.
+    # If doAll is False, enforces restrictions only on a per-variable basis,
+    # e.g. doesn't modify variable v2 based on v1's value. This is useful when
+    # user is interactively modifying v1, and it temporarily strays out of
+    # bounds (e.g. when deleting the old text in an entry box, thus getting the
+    # minimum value), which would then possibly modify the value of other
+    # variables which is not what we want.
     def recalc(self, doAll = True):
         for it in self.cvars.numeric.values():
             util.clampObj(self, it.name, it.minVal, it.maxVal)
@@ -563,7 +563,7 @@ class Config:
         for pf in self.pdfFonts.values():
             pf.refresh()
 
-        # make sure usable space on the page isn't too small
+        # Make sure usable space on the page isn't too small
         if doAll and (self.marginTop + self.marginBottom) >= \
                (self.paperHeight - 100.0):
             self.marginTop = 0.0
@@ -571,22 +571,23 @@ class Config:
 
         h = self.paperHeight - self.marginTop - self.marginBottom
 
-        # how many lines on a page
+        # How many lines on a page
         self.linesOnPage = int(h / util.getTextHeight(self.fontSize))
 
     def getType(self, lt):
         return self.types[lt]
 
-    # get a PDFFontInfo object for the given font type (PDF_FONT_*)
+    # Get a PDFFontInfo object for the given font type (PDF_FONT_*)
     def getPDFFont(self, fontType):
         return self.pdfFonts[fontType]
 
-    # return a tuple of all the PDF font types
+    # Return a tuple of all the PDF font types
     def getPDFFontIds(self):
         return (PDF_FONT_NORMAL, PDF_FONT_BOLD, PDF_FONT_ITALIC,
                 PDF_FONT_BOLD_ITALIC)
 
-# global config. there is only ever one of these active.
+# Global config
+# There is only ever one of these active
 class ConfigGlobal:
     cvars = None
 
@@ -597,10 +598,10 @@ class ConfigGlobal:
 
         self.__class__.cvars.setDefaults(self)
 
-        # type configs, key = line type, value = TypeGlobal
+        # Type configs, key = line type, value = TypeGlobal
         self.types = { }
 
-        # element types
+        # Element types
         t = TypeGlobal(screenplay.SCENE)
         t.newTypeEnter = screenplay.ACTION
         t.newTypeTab = screenplay.CHARACTER
@@ -664,7 +665,8 @@ class ConfigGlobal:
         t.prevTypeTab = screenplay.CHARACTER
         self.types[t.lt] = t
 
-        # keyboard commands. these must be in alphabetical order.
+        # Keyboard commands
+        # These must be in alphabetical order
         self.commands = [] if "TRELBY_TESTING" in os.environ else [
             Command("Abort", "Abort something, e.g. selection,"
                     " auto-completion, etc.", [wx.WXK_ESCAPE], isFixed = True),
@@ -968,59 +970,60 @@ class ConfigGlobal:
     def setupVars(self):
         v = self.__class__.cvars = mypickle.Vars()
 
-        # how many seconds to show splash screen for on startup (0 = disabled)
+        # How many seconds to show splash screen for on startup (0 = disabled)
         v.addInt("splashTime", 2, "SplashTime", 0, 10)
 
-        # vertical distance between rows, in pixels
+        # Vertical distance between rows, in pixels
         v.addInt("fontYdelta", 18, "FontYDelta", 4, 125)
 
-        # how many lines to scroll per mouse wheel event
+        # How many lines to scroll per mouse wheel event
         v.addInt("mouseWheelLines", 4, "MouseWheelLines", 1, 50)
 
-        # interval in seconds between automatic pagination (0 = disabled)
+        # Interval in seconds between automatic pagination (0 = disabled)
         v.addInt("paginateInterval", 1, "PaginateInterval", 0, 10)
 
-        # whether to check script for errors before export / print
+        # Whether to check script for errors before export / print
         v.addBool("checkOnExport", True, "CheckScriptForErrors")
 
-        # whether to auto-capitalize start of sentences
+        # Whether to auto-capitalize start of sentences
         v.addBool("capitalize", True, "CapitalizeSentences")
 
-        # whether to auto-capitalize i -> I
+        # Whether to auto-capitalize i -> I
         v.addBool("capitalizeI", True, "CapitalizeI")
 
-        # whether to open scripts on their last saved position
+        # Whether to open scripts on their last saved position
         v.addBool("honorSavedPos", True, "OpenScriptOnSavedPos")
 
-        # whether to recenter screen when cursor moves out of it
+        # Whether to recenter screen when cursor moves out of it
         v.addBool("recenterOnScroll", False, "RecenterOnScroll")
 
-        # whether to overwrite selected text on typing
+        # Whether to overwrite selected text on typing
         v.addBool("overwriteSelectionOnInsert", True, "OverwriteSelectionOnInsert")
 
-        # whether to use per-elem-type colors (textSceneColor etc.)
-        # instead of using textColor for all elem types
+        # Whether to use per-elem-type colors (textSceneColor etc.) instead of
+        # using textColor for all elem types
         v.addBool("useCustomElemColors", False, "UseCustomElemColors")
 
-        # page break indicators to show
+        # Page break indicators to show
         v.addInt("pbi", PBI_REAL, "PageBreakIndicators", PBI_FIRST,
                     PBI_LAST)
 
-        # PDF viewer program and args. defaults are empty since generating
-        # them is a complex process handled by findPDFViewer.
+        # PDF viewer program and args. defaults are empty since generating them
+        # is a complex process handled by findPDFViewer.
         v.addStrUnicode("pdfViewerPath", "", "PDF/ViewerPath")
         v.addStrBinary("pdfViewerArgs", "", "PDF/ViewerArguments")
 
-        # fonts. real defaults are set in setDefaultFonts.
+        # Fonts
+        # Real defaults are set in setDefaultFonts
         v.addStrBinary("fontNormal", "", "FontNormal")
         v.addStrBinary("fontBold", "", "FontBold")
         v.addStrBinary("fontItalic", "", "FontItalic")
         v.addStrBinary("fontBoldItalic", "", "FontBoldItalic")
 
-        # default script directory
+        # Default script directory
         v.addStrUnicode("scriptDir", misc.progPath, "DefaultScriptDirectory")
 
-        # colors
+        # Colors
         v.addColor("text", 0, 0, 0, "TextFG", "Text foreground")
         v.addColor("textHdr", 128, 128, 128, "TextHeadersFG",
                    "Text foreground (headers)")
@@ -1054,7 +1057,7 @@ class ConfigGlobal:
 
         v.makeDicts()
 
-    # load config from string 's'. does not throw any exceptions, silently
+    # Load config from string 's'. does not throw any exceptions, silently
     # ignores any errors, and always leaves config in an ok state.
     def load(self, s):
         vals = self.cvars.makeVals(s)
@@ -1069,7 +1072,7 @@ class ConfigGlobal:
 
         self.recalc()
 
-    # save config into a string and return that.
+    # Save config into a string and return that
     def save(self):
         s = self.cvars.save("", self)
 
@@ -1081,7 +1084,7 @@ class ConfigGlobal:
 
         return s
 
-    # fix up all invalid config values.
+    # Fix up all invalid config values
     def recalc(self):
         for it in self.cvars.numeric.values():
             util.clampObj(self, it.name, it.minVal, it.maxVal)
@@ -1089,7 +1092,7 @@ class ConfigGlobal:
     def getType(self, lt):
         return self.types[lt]
 
-    # add SHIFT+Key alias for all keys bound to movement commands, so
+    # Add SHIFT+Key alias for all keys bound to movement commands, so
     # selection-movement works.
     def addShiftKeys(self):
         for cmd in self.commands:
@@ -1106,7 +1109,7 @@ class ConfigGlobal:
 
                 cmd.keys.extend(nk)
 
-    # remove key (int) from given cmd
+    # Remove key (int) from given cmd
     def removeKey(self, cmd, key):
         cmd.keys.remove(key)
 
@@ -1118,8 +1121,7 @@ class ConfigGlobal:
             if ki in cmd.keys:
                 cmd.keys.remove(ki)
 
-    # get textual description of conflicting keys, or None if no
-    # conflicts.
+    # Get textual description of conflicting keys, or None if no conflicts.
     def getConflictingKeys(self):
         keys = {}
 
@@ -1145,11 +1147,11 @@ class ConfigGlobal:
         else:
             return s
 
-    # set default values that vary depending on platform, wxWidgets
-    # version, etc. this is not at the end of __init__ because
-    # non-interactive uses have no needs for these.
+    # Set default values that vary depending on platform, wxWidgets version,
+    # etc. this is not at the end of __init__ because non-interactive uses have
+    # no needs for these.
     def setDefaults(self):
-        # check keyboard commands are listed in correct order
+        # Check keyboard commands are listed in correct order
         commands = [cmd.name for cmd in self.commands]
         commandsSorted = sorted(commands)
 
@@ -1158,15 +1160,15 @@ class ConfigGlobal:
             #     if commands[i] != commandsSorted[i]:
             #         print "Got: %s Expected: %s" % (commands[i], commandsSorted[i])
 
-            # if you get this error, you've put a new command you've added
-            # in an incorrect place in the command list. uncomment the
-            # above lines to figure out where it should be.
+            # If you get this error, you've put a new command you've added in an
+            # incorrect place in the command list. Uncomment the above lines to
+            # figure out where it should be.
             raise ConfigError("Commands not listed in correct order")
 
         self.setDefaultFonts()
         self.findPDFViewer()
 
-    # set default fonts
+    # Set default fonts
     def setDefaultFonts(self):
         fn = ["", "", "", ""]
 
@@ -1190,13 +1192,13 @@ class ConfigGlobal:
         self.fontItalic = fn[2]
         self.fontBoldItalic = fn[3]
 
-    # set PDF viewer program to the best one found on the machine.
+    # Set PDF viewer program to the best one found on the machine.
     def findPDFViewer(self):
-        # list of programs to look for. each item is of the form (name,
-        # args). if name is an absolute path only that exact location is
-        # looked at, otherwise PATH is searched for the program (on
-        # Windows, all paths are interpreted as absolute). args is the
-        # list of arguments for the program.
+        # List of programs to look for. Each item is of the form (name, args).
+        # If name is an absolute path only that exact location is looked at,
+        # otherwise PATH is searched for the program (on Windows, all paths are
+        # interpreted as absolute). args is the list of arguments for the
+        # program.
         progs = []
 
         if misc.isUnix:
@@ -1210,7 +1212,7 @@ class ConfigGlobal:
                 ("okular", ""),
                 ]
         elif misc.isWindows:
-            # get value via registry if possible, or fallback to old method.
+            # Get value via registry if possible, or fallback to old method.
             viewer = util.getWindowsPDFViewer()
 
             if viewer:
@@ -1262,11 +1264,11 @@ class ConfigGlobal:
             self.pdfViewerPath = name
             self.pdfViewerArgs = args
 
-# config stuff that are wxwindows objects, so can't be in normal
-# ConfigGlobal (deepcopy dies)
+# Config stuff that are wxwindows objects, so can't be in normal ConfigGlobal
+# (deepcopy dies)
 class ConfigGui:
 
-    # constants
+    # Constants
     constantsInited = False
     bluePen = None
     redColor = None
@@ -1281,7 +1283,7 @@ class ConfigGui:
 
             ConfigGui.constantsInited = True
 
-        # convert cfgGl.MyColor -> cfgGui.wx.Colour
+        # Convert cfgGl.MyColor -> cfgGui.wx.Colour
         for it in cfgGl.cvars.color.values():
             c = getattr(cfgGl, it.name)
             tmp = wx.Colour(c.r, c.g, c.b)
@@ -1332,8 +1334,8 @@ class ConfigGui:
         self.tabNonActiveBgBrush = wx.Brush(self.tabNonActiveBgColor)
         self.tabNonActiveBgPen = wx.Pen(self.tabNonActiveBgColor)
 
-        # a 4-item list of FontInfo objects, indexed by the two lowest
-        # bits of pml.TextOp.flags.
+        # a 4-item list of FontInfo objects, indexed by the two lowest bits of
+        # pml.TextOp.flags.
         self.fonts = []
 
         for fname in ["fontNormal", "fontBold", "fontItalic",
@@ -1342,26 +1344,25 @@ class ConfigGui:
 
             s = getattr(cfgGl, fname)
 
-            # evil users can set the font name to empty by modifying the
-            # config file, and some wxWidgets ports crash hard when trying
-            # to create a font from an empty string, so we must guard
-            # against that.
+            # Evil users can set the font name to empty by modifying the config
+            # file, and some wxWidgets ports crash hard when trying to create a
+            # font from an empty string, so we must guard against that.
             if s:
                 nfi = wx.NativeFontInfo()
                 nfi.FromString(s)
 
                 fi.font = wx.Font(nfi)
 
-                # likewise, evil users can set the font name to "z" or
-                # something equally silly, resulting in an
-                # invalid/non-existent font. on wxGTK2 and wxMSW we can
-                # detect this by checking the point size of the font.
+                # Likewise, evil users can set the font name to "z" or something
+                # equally silly, resulting in an invalid/non-existent font. On
+                # wxGTK2 and wxMSW we can detect this by checking the point size
+                # of the font.
                 if fi.font.GetPointSize() == 0:
                     fi.font = None
 
-            # if either of the above failures happened, create a dummy
-            # font and use it. this sucks but is preferable to crashing or
-            # displaying an empty screen.
+            # If either of the above failures happened, create a dummy font and
+            # use it. this sucks but is preferable to crashing or displaying an
+            # empty screen.
             if not fi.font:
                 fi.font = wx.Font(10, wx.MODERN, wx.NORMAL, wx.NORMAL,
                                   encoding = wx.FONTENCODING_ISO8859_1)

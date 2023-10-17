@@ -14,20 +14,20 @@ import io
 import re
 import zipfile
 
-# special linetype that means that indent contains action and scene lines,
-# and scene lines are the ones that begin with "EXT." or "INT."
+# Special linetype that means that indent contains action and scene lines, and
+# scene lines are the ones that begin with "EXT." or "INT."
 SCENE_ACTION = -2
 
-# special linetype that means don't import those lines; useful for page
-# numbers etc
+# Special linetype that means don't import those lines; useful for page numbers
+# etc.
 IGNORE = -3
 
-#like importTextFile, but for Adobe Story files.
+# LIke importTextFile, but for Adobe Story files.
 def importAstx(fileName, frame):
-    # astx files are xml files. The textlines can be found under
-    # AdobeStory/document/stream/section/scene/paragraph which contain
-    # one or more textRun/break elements, to be joined. The paragraph
-    # attribute "element" gives us the element style.
+    # Astx files are xml files. The textlines can be found under
+    # AdobeStory/document/stream/section/scene/paragraph which contain one or
+    # more textRun/break elements, to be joined. The paragraph attribute
+    # "element" gives us the element style.
 
     data = util.loadFile(fileName, frame, 5000000)
 
@@ -58,8 +58,8 @@ def importAstx(fileName, frame):
     lines = []
 
     def addElem(eleType, items):
-        # if elem ends in a newline, last line is empty and useless;
-        # get rid of it
+        # If elem ends in a newline, last line is empty and useless;
+        # get rid of it.
         if not items[-1] and (len(items) > 1):
             items = items[:-1]
 
@@ -93,14 +93,14 @@ def importAstx(fileName, frame):
 
     return lines
 
-# like importTextFile, but for fadein files.
+# Like importTextFile, but for fadein files.
 def importFadein(fileName, frame):
     # Fadein file is a zipped document.xml file.
-    # the .xml is in open screenplay format:
+    # The .xml is in open screenplay format:
     # http://sourceforge.net/projects/openscrfmt/files/latest/download
 
-    # the 5 MB limit is arbitrary, we just want to avoid getting a
-    # MemoryError exception for /dev/zero etc.
+    # The 5 MB limit is arbitrary, we just want to avoid getting a MemoryError
+    # exception for /dev/zero etc.
     data = util.loadFile(fileName, frame, 5000000)
 
     if data == None:
@@ -145,8 +145,8 @@ def importFadein(fileName, frame):
     lines = []
 
     def addElem(eleType, lns):
-        # if elem ends in a newline, last line is empty and useless;
-        # get rid of it
+        # If elem ends in a newline, last line is empty and useless;
+        # get rid of it.
         if not lns[-1] and (len(lns) > 1):
             lns = lns[:-1]
 
@@ -157,8 +157,8 @@ def importFadein(fileName, frame):
         lines.append(screenplay.Line(
                 screenplay.LB_LAST, eleType, util.cleanInput(lns[-1])))
 
-    # removes html formatting from s, and returns list of lines.
-    # if s is None, return a list with single empty string.
+    # Removes html formatting from s, and returns list of lines. If s is None,
+    # return a list with single empty string.
     re_rem = [r'<font[^>]*>', r'<size[^>]*>', r'<bgcolor[^>]*>']
     rem = ["<b>", "</b>", "<i>", "</i>", "<u>",
            "</u>", "</font>", "</size>", "</bgcolor>"]
@@ -178,7 +178,7 @@ def importFadein(fileName, frame):
             return [""]
 
     for para in root.xpath("paragraphs/para"):
-        # check for notes/synopsis, import as Note.
+        # Check for notes/synopsis, import as Note.
         if para.get("note"):
             lt = screenplay.NOTE
             items = sanitizeStr("" + para.get("note"))
@@ -189,7 +189,7 @@ def importFadein(fileName, frame):
             items = sanitizeStr("" + para.get("synopsis"))
             addElem(lt, items)
 
-        # look for the <style> and <text> tags. Bail if no <text> found.
+        # Look for the <style> and <text> tags. Bail if no <text> found.
         styl = para.xpath("style")
         txt = para.xpath("text")
         if txt:
@@ -214,10 +214,10 @@ def importFadein(fileName, frame):
 
     return lines
 
-# like importTextFile, but for Celtx files.
+# Like importTextFile, but for Celtx files.
 def importCeltx(fileName, frame):
-    # Celtx files are zipfiles, and the script content is within a file
-    # called "script-xxx.html", where xxx can be random.
+    # Celtx files are zipfiles, and the script content is within a file called
+    # "script-xxx.html", where xxx can be random.
     try:
         z = zipfile.ZipFile(fileName)
     except:
@@ -260,8 +260,8 @@ def importCeltx(fileName, frame):
     lines = []
 
     def addElem(eleType, lns):
-        # if elem ends in a newline, last line is empty and useless;
-        # get rid of it
+        # If elem ends in a newline, last line is empty and useless;
+        # get rid of it.
         if not lns[-1] and (len(lns) > 1):
             lns = lns[:-1]
 
@@ -290,7 +290,7 @@ def importCeltx(fileName, frame):
 
     return lines
 
-# like importTextFile, but for Final Draft files.
+# Like importTextFile, but for Final Draft files.
 def importFDX(fileName, frame):
     elemMap = {
         "Action" : screenplay.ACTION,
@@ -302,8 +302,8 @@ def importFDX(fileName, frame):
         "Transition" : screenplay.TRANSITION,
     }
 
-    # the 5 MB limit is arbitrary, we just want to avoid getting a
-    # MemoryError exception for /dev/zero etc.
+    # The 5 MB limit is arbitrary, we just want to avoid getting a MemoryError
+    # exception for /dev/zero etc.
     data = util.loadFile(fileName, frame, 5000000)
 
     if data == None:
@@ -321,8 +321,8 @@ def importFDX(fileName, frame):
         def addElem(eleType, eleText):
             lns = eleText.split("\n")
 
-            # if elem ends in a newline, last line is empty and useless;
-            # get rid of it
+            # If elem ends in a newline, last line is empty and useless;
+            # get rid of it.
             if not lns[-1] and (len(lns) > 1):
                 lns = lns[:-1]
 
@@ -343,7 +343,7 @@ def importFDX(fileName, frame):
                 if notes.text:
                     s += notes.text
 
-                # FD has AdornmentStyle set to "0" on notes with newline.
+                # FD has AdornmentStyle set to "0" on notes with newline
                 if notes.get("AdornmentStyle") == "0":
                     s += "\n"
 
@@ -360,14 +360,13 @@ def importFDX(fileName, frame):
 
             s = ""
             for text in para.xpath("Text"):
-                # text.text is None for paragraphs with no text, and +=
-                # blows up trying to add a string object and None, so
-                # guard against that
+                # text.text is None for paragraphs with no text, and += blows up
+                # trying to add a string object and None, so guard against that.
                 if text.text:
                     s += text.text
 
-            # don't remove paragraphs with no text, unless that paragraph
-            # contained a scriptnote
+            # Don't remove paragraphs with no text, unless that paragraph
+            # contained a scriptnote.
             if s or not addedNote:
                 lt = elemMap.get(et, screenplay.ACTION)
                 addElem(lt, s)
@@ -382,47 +381,47 @@ def importFDX(fileName, frame):
         wx.MessageBox("Error parsing file: %s" %e, "Error", wx.OK, frame)
         return None
 
-# import Fountain files.
+# Import Fountain files
 # http://fountain.io
 def importFountain(fileName, frame, titlePages):
-    # regular expressions for fountain markdown.
+    # Regular expressions for fountain markdown
     # https://github.com/vilcans/screenplain/blob/master/screenplain/richstring.py
     ire = re.compile(
-            # one star
+            # One star
             r'\*'
-            # anything but a space, then text
+            # Anything but a space, then text
             r'([^\s].*?)'
-            # finishing with one star
+            # Finishing with one star
             r'\*'
-            # must not be followed by star
+            # Must not be followed by star
             r'(?!\*)'
         )
     bre = re.compile(
-            # two stars
+            # Two stars
             r'\*\*'
-            # must not be followed by space
+            # Must not be followed by space
             r'(?=\S)'
-            # inside text
+            # Inside text
             r'(.+?[*_]*)'
-            # finishing with two stars
+            # Finishing with two stars
             r'(?<=\S)\*\*'
         )
     ure = re.compile(
-            # underline
+            # Underline
             r'_'
-            # must not be followed by space
+            # Must not be followed by space
             r'(?=\S)'
-            # inside text
+            # Inside text
             r'([^_]+)'
-            # finishing with underline
+            # Finishing with underline
             r'(?<=\S)_'
         )
     boneyard_re = re.compile('/\\*.*?\\*/', flags=re.DOTALL)
 
-    # random magicstring used to escape literal star '\*'
+    # Random magicstring used to escape literal star '\*'
     literalstar = "Aq7RR"
 
-    # returns s with markdown formatting removed.
+    # Returns s with Markdown formatting removed
     def unmarkdown(s):
         s = s.replace("\\*", literalstar)
         for style in (bre, ire, ure):
@@ -456,7 +455,7 @@ def importFountain(fileName, frame, titlePages):
     removeMarkdown = inf[2].selected
     importSectSyn = inf[3].selected
 
-    # pre-process data - fix newlines, remove boneyard.
+    # Pre-process data - fix newlines, remove boneyard.
     data = util.fixNL(data)
     data = boneyard_re.sub('', data)
     prelines = data.split("\n")
@@ -488,11 +487,12 @@ def importFountain(fileName, frame, titlePages):
     if c > 0:
         l = util.toInputStr(prelines[0].expandtabs(tabWidth).lstrip().lower())
         if not l.startswith("fade") and l.count(":") == 1:
-            # these are title lines. Now do what the user requested.
+            # These are title lines. Now do what the user requested.
             if importTitlePage:
-                #Extract usable title page lines
+                # Extract usable title page lines
                 kwPattern = re.compile(r'^([A-za-z][^:]+:)')
-                continuePattern = re.compile(r'^\s\s\s+') # line begins with 3 or more spaces
+                # Line begins with 3 or more spaces
+                continuePattern = re.compile(r'^\s\s\s+')
                 titleIdx=0
                 gatheredTitles=[]
                 rejects=[]
@@ -500,10 +500,12 @@ def importFountain(fileName, frame, titlePages):
                 while l != '':
                     match=kwPattern.split(l)
                     match=[ll.strip() for ll in match]
-                    if len(match) == 3: # keyword line
+                    # Keyword line
+                    if len(match) == 3:
                         if match[2] == '':
                             follows=[]
-                            titleIdx+=1 # gather indented prelines
+                            # Gather indented prelines
+                            titleIdx+=1
                             nextline = continuePattern.match(prelines[titleIdx])
                             while nextline:
                                 follows.append(prelines[titleIdx].strip('_* \t'))
@@ -518,7 +520,7 @@ def importFountain(fileName, frame, titlePages):
                         rejects.append(l)
                     titleIdx+=1
                     l=prelines[titleIdx]
-                # replace default titles with imported ones
+                # Replace default titles with imported ones
                 leftX = 15.0
                 leftY = 220.0
                 centreX = 0.0
@@ -553,16 +555,17 @@ def importFountain(fileName, frame, titlePages):
                         continue
                     targetTitle=titlePages[0][titlenr]
                     targetTitle.items=t[1]
-                # user might request that titles go into both title page & script
+                # User might request that titles go into both title page &
+                # script
                 if not importTitles:
                     rejects += prelines[c+1:]
                     prelines=rejects
             if importTitles:
-                # add TWOSPACE to all the title lines.
+                # Add TWOSPACE to all the title lines
                 for i in range(c):
                     prelines[i] += TWOSPACE
             elif not importTitlePage:
-                #remove these lines
+                # remove these lines
                 prelines = prelines[c+1:]
 
     for l in prelines:
@@ -581,7 +584,7 @@ def importFountain(fileName, frame, titlePages):
     def isPrevType(ltype):
         return (lns and lns[-1].lt == ltype)
 
-    # looks ahead to check if next line is not empty
+    # Looks ahead to check if next line is not empty
     def isNextEmpty(i):
         return  (i+1 < len(lines) and lines[i+1] == "")
 
@@ -625,7 +628,7 @@ def importFountain(fileName, frame, titlePages):
     def isSynopsis(s):
         return s.startswith("=") and not s.startswith("==")
 
-    # first pass - identify linetypes
+    # First pass - identify linetypes
     for i in range(linesLen):
         if skipone:
             skipone = False
@@ -633,14 +636,14 @@ def importFountain(fileName, frame, titlePages):
 
         s = lines[i]
         sl = s.lstrip()
-        # mark as ACTION by default.
+        # Mark as ACTION by default
         line = screenplay.Line(screenplay.LB_FORCED, screenplay.ACTION, s)
 
         # Start testing lines for element type. Go in order:
         # Scene Character, Paren, Dialog, Transition, Note.
 
         if s == "" or isCentered(s) or isPageBreak(s):
-            # do nothing - import as action.
+            # Do nothing - import as action
             pass
 
         elif s == TWOSPACE:
@@ -693,7 +696,7 @@ def importFountain(fileName, frame, titlePages):
 
         else:
             tmp = line.text.rstrip()
-            # we don't support center align, so simply add required indent.
+            # We don't support center align, so simply add required indent.
             if isCentered(tmp):
                 tmp = tmp[1:-1].strip()
                 width = frame.panel.ctrl.sp.cfg.getType(screenplay.ACTION).width
@@ -710,7 +713,7 @@ def importFountain(fileName, frame, titlePages):
 
     ret = []
 
-    # second pass helper functions.
+    # Second pass helper functions
     def isLastLBForced():
         return ret and ret[-1].lb == screenplay.LB_FORCED
 
@@ -721,7 +724,7 @@ def importFountain(fileName, frame, titlePages):
     def isRetPrevType(t):
         return ret and ret[-1].lt == t
 
-    # second pass - remove unneeded empty lines, and fix the linebreaks.
+    # Second pass - remove unneeded empty lines, and fix the linebreaks.
     for ln in lns:
         if ln.text == '':
             if isLastLBForced():
@@ -739,13 +742,13 @@ def importFountain(fileName, frame, titlePages):
     makeLastLBLast()
     return ret, titlePages
 
-# import text file from fileName, return list of Line objects for the
-# screenplay or None if something went wrong. returned list always
-# contains at least one line.
+# Import text file from fileName, return list of Line objects for the
+# screenplay or None if something went wrong. Returned list always contains at
+# least one line.
 def importTextFile(fileName: str, frame: wx.Frame)->Optional[List[screenplay.Line]]:
 
-    # the 1 MB limit is arbitrary, we just want to avoid getting a
-    # MemoryError exception for /dev/zero etc.
+    # The 1 MB limit is arbitrary, we just want to avoid getting a MemoryError
+    # exception for /dev/zero etc.
     data = util.loadFile(fileName, frame, 1000000)
 
     if data == None:
@@ -767,7 +770,7 @@ def importTextFile(fileName: str, frame: wx.Frame)->Optional[List[screenplay.Lin
     for i in range(len(lines)):
         s = util.toInputStr(lines[i].rstrip().expandtabs(tabWidth))
 
-        # don't count empty lines towards indentation statistics
+        # Don't count empty lines towards indentation statistics
         if s.strip() == "":
             lines[i] = ""
 
@@ -799,28 +802,28 @@ def importTextFile(fileName: str, frame: wx.Frame)->Optional[List[screenplay.Lin
 
         return None
 
-    # scene/action indent
+    # Scene/action indent
     setType(SCENE_ACTION, indDict, lambda v: v.sceneStart)
 
-    # indent with most lines is dialogue in non-pure-action scripts
+    # Indent with most lines is dialogue in non-pure-action scripts
     setType(screenplay.DIALOGUE, indDict, lambda v: len(v.lines))
 
-    # remaining indent with lines is character most likely
+    # Remaining indent with lines is character most likely
     setType(screenplay.CHARACTER, indDict, lambda v: len(v.lines))
 
-    # transitions
+    # Transitions
     setType(screenplay.TRANSITION, indDict, lambda v: v.trans)
 
-    # parentheticals
+    # Parentheticals
     setType(screenplay.PAREN, indDict, lambda v: v.paren)
 
-    # some text files have this type of parens:
+    # Some text files have this type of parens:
     #
     #        JOE
     #      (smiling and
     #       hopping along)
     #
-    # this handles them.
+    # This handles them.
     parenIndent = findIndent(indDict, lambda v: v.lt == screenplay.PAREN)
     if parenIndent != -1:
         paren2Indent = findIndent(indDict,
@@ -830,7 +833,7 @@ def importTextFile(fileName: str, frame: wx.Frame)->Optional[List[screenplay.Lin
         if paren2Indent != -1:
             indDict[paren2Indent].lt = screenplay.PAREN
 
-    # set line type to ACTION for any indents not recognized
+    # Set line type to ACTION for any indents not recognized
     for v in indDict.values():
         if v.lt == -1:
             v.lt = screenplay.ACTION
@@ -885,19 +888,19 @@ def importTextFile(fileName: str, frame: wx.Frame)->Optional[List[screenplay.Lin
     if len(ret) == 0:
         ret.append(screenplay.Line(screenplay.LB_LAST, screenplay.ACTION))
 
-    # make sure the last line ends an element
+    # Make sure the last line ends an element
     ret[-1].lb = screenplay.LB_LAST
 
     return ret
 
-# go through indents, find the one with maximum value in something, and
-# set its linetype to given lt.
+# Go through indents, find the one with maximum value in something, and set its
+# linetype to given lt.
 def setType(lt, indDict, func):
     maxCount = 0
     found = -1
 
     for v in indDict.values():
-        # don't touch indents already set
+        # Don't touch indents already set
         if v.lt != -1:
             continue
 
@@ -910,8 +913,8 @@ def setType(lt, indDict, func):
     if found != -1:
         indDict[found].lt = lt
 
-# go through indents calling func(it, *vars) on each. return indent count
-# for the indent func returns True, or -1 if it returns False for each.
+# Go through indents calling func(it, *vars) on each. Return indent count for
+# the indent func returns True, or -1 if it returns False for each.
 def findIndent(indDict, func, *vars):
     for v in indDict.values():
         if func(v, *vars):
@@ -919,26 +922,26 @@ def findIndent(indDict, func, *vars):
 
     return -1
 
-# information about one indent level in imported text files.
+# Information about one indent level in imported text files
 class Indent:
     def __init__(self, indent):
 
-        # indent level, i.e. spaces at the beginning
+        # Indent level, i.e. spaces at the beginning
         self.indent = indent
 
-        # lines with this indent, leading spaces removed
+        # Lines with this indent, leading spaces removed.
         self.lines = []
 
-        # assigned line type, or -1 if not assigned yet.
+        # Assigned line type, or -1 if not assigned yet.
         self.lt = -1
 
-        # how many of the lines start with "EXT." or "INT."
+        # How many of the lines start with "EXT." or "INT."
         self.sceneStart = 0
 
-        # how many of the lines have "CUT TO:" or "DISSOLVE TO:"
+        # How many of the lines have "CUT TO:" or "DISSOLVE TO:"
         self.trans = 0
 
-        # how many of the lines have a form of "^ +\(.*)$", i.e. are most
+        # How many of the lines have a form of "^ +\(.*)$", i.e. are most
         # likely parentheticals
         self.paren = 0
 

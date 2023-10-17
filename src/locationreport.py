@@ -12,29 +12,28 @@ class LocationReport:
     def __init__(self, sr):
         self.sp = sr.sp
 
-        # key = scene name, value = LocationInfo. note that multiple keys
-        # can point to the same LocationInfo.
+        # key = scene name, value = LocationInfo. Note that multiple keys can
+        # point to the same LocationInfo.
         locations = {}
 
-        # like locations, but this one stores per-scene information
+        # Like locations, but this one stores per-scene information.
         self.scenes = {}
 
-        # make grouped scenes point to the same LocationInfos.
+        # Make grouped scenes point to the same LocationInfos
         for sceneList in self.sp.locations.locations:
             li = LocationInfo(self.sp)
 
             for scene in sceneList:
                 locations[scene] = li
 
-        # merge scene information for locations and store scene
-        # information
+        # Merge scene information for locations and store scene information
         for si in sr.scenes:
             locations.setdefault(si.name, LocationInfo(self.sp)).addScene(si)
 
             self.scenes.setdefault(si.name, LocationInfo(self.sp)).\
                  addScene(si)
 
-        # remove empty LocationInfos, sort them and store to a list
+        # Remove empty LocationInfos, sort them and store in a list.
         tmp = []
         for li in locations.values():
             if (len(li.scenes) > 0) and (li not in tmp):
@@ -55,8 +54,8 @@ class LocationReport:
 
         self.locations = tmp
 
-        # information about what to include (and yes, the comma is needed
-        # to unpack the list)
+        # Information about what to include (and yes, the comma is needed to
+        # unpack the list)
         self.INF_SPEAKERS, = list(range(1))
         self.inf = []
         for s in ["Speakers"]:
@@ -71,7 +70,7 @@ class LocationReport:
         for li in self.locations:
             tf.addSpace(5.0)
 
-            # list of (scenename, lines_in_scene) tuples, which we sort in
+            # List of (scenename, lines_in_scene) tuples, which we sort in
             # DESC(lines_in_scene) ASC(scenename) order.
             tmp = [(scene, self.scenes[scene].lines) for scene in li.scenes]
 
@@ -103,30 +102,29 @@ class LocationReport:
 
         return pdf.generate(tf.doc)
 
-# information about one location
+# Information about one location
 class LocationInfo:
     def __init__(self, sp):
-        # number of scenes
+        # Number of scenes
         self.sceneCount = 0
 
-        # scene names, e.g. ["INT. MOTEL ROOM - NIGHT", "EXT. MOTEL -
-        # NIGHT"]
+        # Scene names, e.g. ["INT. MOTEL ROOM - NIGHT", "EXT. MOTEL - NIGHT"]
         self.scenes = []
 
-        # total lines, excluding scene lines
+        # Total lines, excluding scene lines.
         self.lines = 0
 
-        # action lines
+        # Action lines
         self.actionLines = 0
 
-        # page numbers
+        # Page numbers
         self.pages = screenplay.PageList(sp.getPageNumbers())
 
-        # key = character name (upper cased), value = number of dialogue
-        # lines
+        # key = character name (uppercase), value = number of dialogue lines
         self.chars = {}
 
-    # add a scene. si = SceneInfo
+    # Add a scene
+    # si = SceneInfo
     def addScene(self, si):
         if si.name not in self.scenes:
             self.scenes.append(si.name)

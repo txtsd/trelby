@@ -8,7 +8,7 @@ class SceneReport:
     def __init__(self, sp):
         self.sp = sp
 
-        # list of SceneInfos
+        # List of SceneInfos
         self.scenes = []
 
         line = 0
@@ -24,13 +24,13 @@ class SceneReport:
 
             line = endLine + 1
 
-        # we don't use these, but ScriptReport does
+        # We don't use these but ScriptReport does
         lineSeq = [si.lines for si in self.scenes]
         self.longestScene = max(lineSeq)
         self.avgScene = sum(lineSeq) / float(len(self.scenes))
 
-        # information about what to include (and yes, the comma is needed
-        # to unpack the list)
+        # Information about what to include (and yes, the comma is needed to
+        # unpack the list)
         self.INF_SPEAKERS, = list(range(1))
         self.inf = []
         for s in ["Speakers"]:
@@ -59,29 +59,28 @@ class SceneReport:
 
         return pdf.generate(tf.doc)
 
-# information about one scene
+# Information about one scene
 class SceneInfo:
     def __init__(self, sp):
-        # scene number, e.g. "42A"
+        # Scene number, e.g. "42A"
         self.number = None
 
-        # scene name, e.g. "INT. MOTEL ROOM - NIGHT"
+        # Scene name, e.g. "INT. MOTEL ROOM - NIGHT"
         self.name = None
 
-        # total lines, excluding scene lines
+        # Total lines, excluding scene lines
         self.lines = 0
 
-        # action lines
+        # Action lines
         self.actionLines = 0
 
-        # page numbers
+        # Page numbers
         self.pages = screenplay.PageList(sp.getPageNumbers())
 
-        # key = character name (upper cased), value = number of dialogue
-        # lines
+        # key = character name (uppercase), value = number of dialogue lines
         self.chars = {}
 
-    # read information for scene within given lines.
+    # Read information for scene within given lines
     def read(self, sp, startLine, endLine):
         self.number = sp.getSceneNumber(startLine)
 
@@ -102,20 +101,20 @@ class SceneInfo:
 
         line = startLine
 
-        # skip over scene headers
+        # Skip over scene headers
         while (line <= endLine) and (ls[line].lt == screenplay.SCENE):
             line = sp.getElemLastIndexFromLine(line) + 1
 
         if line > endLine:
-            # empty scene
+            # Empty scene
             return
 
-        # re-define startLine to be first line after scene header
+        # Redefine startLine to be first line after scene header
         startLine = line
 
         self.lines = endLine - startLine + 1
 
-        # get number of action lines and store page information
+        # Get number of action lines and store page information
         for i in range(startLine, endLine + 1):
             self.pages.addPage(sp.line2page(i))
 
@@ -128,19 +127,19 @@ class SceneInfo:
             if line >= endLine:
                 break
 
-    # read information for one (or zero) speech, beginning at given line.
-    # return line number of the last line of the speech + 1, or endLine +
-    # 1 if no speech found.
+    # Read information for one (or zero) speech, beginning at given line.
+    # return line number of the last line of the speech + 1, or endLine + 1 if
+    # no speech found.
     def readSpeech(self, sp, line, endLine):
         ls = sp.lines
 
-        # find start of speech
+        # Find start of speech
         while (line < endLine) and (ls[line].lt != screenplay.CHARACTER):
             line += 1
 
         if line >= endLine:
-            # no speech found, or CHARACTER was on last line, leaving no
-            # space for dialogue.
+            # No speech found, or CHARACTER was on last line, leaving no space
+            # for dialogue.
             return endLine
 
         # TODO: handle multi-line character names
@@ -150,10 +149,10 @@ class SceneInfo:
         else:
             name = s
 
-        # skip over character name
+        # Skip over character name
         line = sp.getElemLastIndexFromLine(line) + 1
 
-        # dialogue lines
+        # Dialogue lines
         dlines = 0
 
         while 1:

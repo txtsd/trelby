@@ -22,7 +22,7 @@ endif
 
 # Book xsltproc options for HTML output
 # Note: --stringparam arguments no longer go here; 
-# see tools/html-stylesheet.xsl and tools/chunk-stylesheet.xsl
+# See tools/html-stylesheet.xsl and tools/chunk-stylesheet.xsl
 BOOK_HTML_XSLTPROC_OPTS = 
 
 all: html manpage

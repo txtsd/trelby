@@ -19,7 +19,7 @@ class CharacterReport:
         name = None
         scene = "(NO SCENE NAME)"
 
-        # how many lines processed for current speech
+        # How many lines processed for current speech
         curSpeechLines = 0
 
         for i in range(len(ls)):
@@ -64,7 +64,7 @@ class CharacterReport:
                 name = None
                 curSpeechLines = 0
 
-        # list of CharInfo objects
+        # List of CharInfo objects
         self.cinfo = []
         for v in list(chars.values()):
             self.cinfo.append(v)
@@ -76,13 +76,13 @@ class CharacterReport:
         self.totalWordCnt = self.sum("wordCnt")
         self.totalWordCharCnt = self.sum("wordCharCnt")
 
-        # information types and what to include
+        # Information types and what to include
         self.INF_BASIC, self.INF_PAGES, self.INF_LOCATIONS = list(range(3))
         self.inf = []
         for s in ["Basic information", "Page list", "Location list"]:
             self.inf.append(misc.CheckBoxItem(s))
 
-    # calculate total sum of self.cinfo.{name} and return it.
+    # Calculate total sum of self.cinfo.{name} and return it
     def sum(self, name):
         return reduce(lambda tot, ci: tot + getattr(ci, name), self.cinfo, 0)
 
@@ -123,7 +123,7 @@ class CharacterReport:
 
         return pdf.generate(tf.doc)
 
-# information about one character
+# Information about one character
 class CharInfo:
     def __init__(self, name, sp):
         self.name = name

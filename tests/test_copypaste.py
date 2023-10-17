@@ -1,14 +1,14 @@
 import screenplay as scr
 import u
 
-# tests delete commands
+# Tests delete commands
 
-# we had a bug where pasting on an empty line right after a forced
-# linebreak would think "oh, I'm in an empty element, I'll just change the
-# linetype of this line and be done with it", which is wrong, because the
-# linetypes of the lines above were not changed, and now you had an
-# element with multiple different linetypes. the right thing to do is not
-# change the linetypes at all unless the entire element is empty.
+# We had a bug where pasting on an empty line right after a forced linebreak
+# would think "oh, I'm in an empty element, I'll just change the linetype of
+# this line and be done with it", which is wrong, because the linetypes of the
+# lines above were not changed, and now you had an element with multiple
+# different linetypes. The right thing to do is not change the linetypes at all
+# unless the entire element is empty.
 def testPasteAfterForcedLineBreak():
     sp = u.new()
 

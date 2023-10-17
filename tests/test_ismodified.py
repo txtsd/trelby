@@ -2,7 +2,7 @@ import screenplay as scr
 import config
 import u
 
-# tests isModified updating
+# Tests isModified updating
 
 def testInitial():
     sp = u.load()
@@ -35,7 +35,7 @@ def testDeleteEnd():
     sp.cmd("deleteForward")
     assert not sp.isModified()
 
-# waste of time to test all move commands, test just one
+# Waste of time to test all move commands, test just one
 def testMoveRight():
     sp = u.load()
     sp.cmd("moveRight")

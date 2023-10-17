@@ -1,7 +1,7 @@
 import u
 import screenplay as scr
 
-# test changing type of one element
+# Test changing type of one element
 def testChangeOneElem():
     sp = u.load()
     ls = sp.lines
@@ -41,13 +41,13 @@ def testChangeOneElem():
 
         assert ls[i + 1].lt == scr.CHARACTER
 
-# test that when text belonging to multiple elements is selected, changing
-# type changes all of those elements
+# Test that when text belonging to multiple elements is selected, changing type
+# changes all of those elements.
 def testChangeManyElemes():
     sp = u.load()
     ls = sp.lines
 
-    # select second and third elements
+    # Select second and third elements
     sp.cmd("moveDown")
     sp.cmd("setMark")
     sp.cmd("moveDown", count = 4)

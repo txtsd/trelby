@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 import wx
 
-# linebreak types
+# Linebreak types
 
 LB_SPACE = 1
 
-# we don't use this anymore, but we have to keep it in order to be able to
-# load old scripts
+# We don't use this anymore, but we have to keep it in order to be able to load
+# old scripts
 LB_SPACE2 = 2
 
 LB_NONE = 3
 LB_FORCED = 4
 LB_LAST = 5
 
-# line types
+# Line types
 SCENE = 1
 ACTION = 2
 CHARACTER = 3
@@ -47,7 +47,7 @@ import time
 
 from lxml import etree
 
-# screenplay
+# Screenplay
 class Screenplay:
     def __init__(self, cfgGl):
         self.autoCompletion = autocompletion.AutoCompletion()
@@ -61,12 +61,11 @@ class Screenplay:
         self.cfgGl = cfgGl
         self.cfg = config.Config()
 
-        # cursor position: line and column
+        # Cursor position: line and column
         self.line = 0
         self.column = 0
 
-        # first line shown on screen. use getTopLine/setTopLine to access
-        # this.
+        # First line shown on screen. Use getTopLine/setTopLine to access this.
         self._topLine = 0
 
         # Mark object if selection active, or None.
@@ -76,43 +75,42 @@ class Screenplay:
         self.pages = [-1, 0]
         self.pagesNoAdjust = [-1, 0]
 
-        # time when last paginated
+        # Time when last paginated
         self.lastPaginated = 0.0
 
-        # list of active auto-completion strings
+        # List of active auto-completion strings
         self.acItems = None
 
-        # selected auto-completion item (only valid when acItems contains
+        # Selected auto-completion item (only valid when acItems contains
         # something)
         self.acSel = -1
 
-        # max nr of auto comp items displayed at once
+        # Max nr of auto comp items displayed at once
         self.acMax = 10
 
-        # True if script has had changes done to it after
-        # load/save/creation.
+        # True if script has had changes done to it after load/save/creation.
         self.hasChanged = False
 
-        # first/last undo objects (undo.Base)
+        # First/last undo objects (undo.Base)
         self.firstUndo = None
         self.lastUndo = None
 
-        # value of this, depending on the user's last action:
-        #  undo: the undo object that was used
-        #  redo: the next undo object from the one that was used
-        #  anything else: None
+        # Value of this depending on the user's last action:
+        #   undo: the undo object that was used
+        #   redo: the next undo object from the one that was used
+        #   anything else: None
         self.currentUndo = None
 
-        # estimated amount of memory used by undo objects, in bytes
+        # Estimated amount of memory used by undo objects, in bytes.
         self.undoMemoryUsed = 0
 
     def isModified(self):
         if not self.hasChanged:
             return False
 
-        # nothing of value is ever lost by not saving a completely empty
-        # script, and it's annoying getting warnings about unsaved changes
-        # on those, so don't do that
+        # Nothing of value is ever lost by not saving a completely empty script,
+        # and it's annoying getting warnings about unsaved changes on those, so
+        # don't do that.
 
         return (len(self.lines) > 1) or bool(self.lines[0].text)
 
@@ -122,8 +120,8 @@ class Screenplay:
     def cursorAsMark(self):
         return Mark(self.line, self.column)
 
-    # return True if the line is a parenthetical and not the first line of
-    # that element (such lines need an extra space of indenting).
+    # Return True if the line is a parenthetical and not the first line of that
+    # element (such lines need an extra space of indenting).
     def needsExtraParenIndent(self, line):
         return (self.lines[line].lt == PAREN) and not self.isFirstLineOfElem(line)
 
@@ -138,9 +136,8 @@ class Screenplay:
         else:
             return tcfg.intraSpacing
 
-    # we implement our own custom deepcopy because it's 8-10x faster than
-    # the generic one (times reported by cmdSpeedTest using a 119-page
-    # screenplay):
+    # We implement our own custom deepcopy because it's 8-10x faster than the
+    # generic one (times reported by cmdSpeedTest using a 119-page screenplay):
     #
     # ╭─────────────────────────────┬─────────┬────────╮
     # │                             │ Generic │ Custom │
@@ -160,14 +157,14 @@ class Screenplay:
 
         sp.lines = [Line(ln.lb, ln.lt, ln.text) for ln in self.lines]
 
-        # "open PDF on current page" breaks on scripts we're removing
-        # notes from before printing if we don't copy these
+        # "Open PDF on current page" breaks on scripts we're removing notes from
+        # before printing if we don't copy these
         sp.line = self.line
         sp.column = self.column
 
         return sp
 
-    # save script to a utf-8 encoded string and return that
+    # Save script to a UTF-8 encoded string and return that
     def save(self)->bytes:
         self.cfg.cursorLine = self.line
         self.cfg.cursorColumn = self.column
@@ -213,17 +210,17 @@ class Screenplay:
 
         return output.encode("UTF-8")
 
-    # load script from string s and return a (Screenplay, msg) tuple,
-    # where msgs is string (possibly empty) of warnings about the loading
-    # process. fatal errors are indicated by raising a MiscError. note
-    # that this is a static function.
+    # Load script from string s and return a (Screenplay, msg) tuple, where msgs
+    # is string (possibly empty) of warnings about the loading process. Fatal
+    # errors are indicated by raising a MiscError. Note that this is a static
+    # function.
     @staticmethod
     def load(s: str, cfgGl):
         lines = s.splitlines()
 
         sp = Screenplay(cfgGl)
 
-        # remove default empty line
+        # Remove default empty line
         sp.lines = []
 
         if len(lines) < 2:
@@ -242,7 +239,7 @@ class Screenplay:
 
         version = int(version)
 
-        # current position at 'lines'
+        # Current position at 'lines'
         index = 1
 
         s, index = Screenplay.getConfigPart(lines, "Auto-Completion", index)
@@ -262,21 +259,20 @@ class Screenplay:
         if s:
             sp.scDict.load(s)
 
-        # used to keep track that element type only changes after a
-        # LB_LAST line.
+        # Used to keep track that element type only changes after a LB_LAST line
         prevType = None
 
-        # did we encounter unknown lb types
+        # Did we encounter unknown lb types
         unknownLb = False
 
-        # did we encounter unknown element types
+        # Did we encounter unknown element types
         unknownTypes = False
 
-        # did we encounter unknown config lines
+        # Did we encounter unknown config lines
         unknownConfigs = False
 
-        # have we seen the Start-Script line. defaults to True in old
-        # files which didn't have it.
+        # Have we seen the Start-Script line? Defaults to True in old files
+        # which didn't have it.
         startSeen = version < 3
 
         for i in range(index, len(lines)):
@@ -326,12 +322,12 @@ class Screenplay:
                 lt = config.char2lt(s[1], False)
                 text = util.toInputStr(util.fromUTF8(s[2:]))
 
-                # convert unknown lb types into LB_SPACE
+                # Convert unknown lb types into LB_SPACE
                 if lb == None:
                     lb = LB_SPACE
                     unknownLb = True
 
-                # convert unknown types into ACTION
+                # Convert unknown types into ACTION
                 if lt == None:
                     lt = ACTION
                     unknownTypes = True
@@ -386,13 +382,14 @@ class Screenplay:
 
         return (sp, "\n\n".join(msgs))
 
-    # lines is an array of strings. if lines[startIndex] == "Begin-$name
-    # ", this searches for a string of "End-$name ", takes all the strings
-    # between those two, joins the lines into a single string (lines
-    # separated by a "\n") and returns (string,
-    # line-index-after-the-end-line). returns ("", startIndex) if
-    # startIndex does not contain the start line or startIndex is too big
-    # for 'lines'. raises error.MiscError on errors.
+    # Lines is an array of strings.
+    # If lines[startIndex] == "Begin-$name", this searches for a string of
+    # "End-$name ", takes all the strings between those two, joins the lines
+    # into a single string (lines separated by a "\n") and returns
+    # (string, line-index-after-the-end-line).
+    # Returns ("", startIndex) if startIndex does not contain the start line or
+    # startIndex is too big for 'lines'.
+    # Raises error.MiscError on errors.
     @staticmethod
     def getConfigPart(lines, name, startIndex):
         if (startIndex >= len(lines)) or\
@@ -406,10 +403,10 @@ class Screenplay:
 
         return ("\n".join(lines[startIndex + 1:endIndex]), endIndex + 1)
 
-    # parse a line containing a config-value in the format detailed in
-    # fileformat.txt. line must have newline stripped from the end
-    # already. returns a (key, value) tuple. if line doesn't match the
-    # format, (None, None) is returned.
+    # Parse a line containing a config-value in the format detailed in
+    # fileformat.txt. Line must have newline stripped from the end already.
+    # Returns a (key, value) tuple. If line doesn't match the format,
+    # (None, None) is returned.
     @staticmethod
     def parseConfigLine(s: str)->Tuple[str,str]:
         pattern = re.compile("#([a-zA-Z0-9\-]+) (.*)")
@@ -419,7 +416,7 @@ class Screenplay:
         else:
             return (None, None)
 
-    # apply new config.
+    # Apply new config
     def applyCfg(self, cfg):
         self.firstUndo = None
         self.lastUndo = None
@@ -433,12 +430,12 @@ class Screenplay:
 
         self.markChanged()
 
-    # return script config as a string.
+    # Return script config as a string
     def saveCfg(self):
         return self.cfg.save()
 
-    # generate formatted text and return it as a string. if 'dopages' is
-    # True, marks pagination in the output.
+    # Generate formatted text and return it as a string. If 'dopages' is True,
+    # marks pagination in the output.
     def generateText(self, doPages):
         ls = self.lines
 
@@ -471,12 +468,12 @@ class Screenplay:
 
         return str(output)
 
-    # generate HTML output and return it as a string, optionally including
+    # Generate HTML output and return it as a string, optionally including
     # notes.
     def generateHtml(self, includeNotes = True):
         ls = self.lines
 
-        # We save space by shorter class names in html.
+        # We save space by shorter class names in html
         htmlMap = {
             ACTION : "ac",
             CHARACTER : "ch",
@@ -489,7 +486,7 @@ class Screenplay:
             ACTBREAK : "ab",
         }
 
-        # html header for files
+        # HTML header for files
         htmlHeader = """
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -517,7 +514,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         content = etree.Element("div")
         content.set("class","spcenter")
 
-        # title pages
+        # Title pages
         for page in self.titles.pages:
             for ts in page:
                 for s in ts.items:
@@ -546,7 +543,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
             text = " " * tcfg.indent + text
 
-            # do we need space before this line?
+            # Do we need space before this line?
             lineSpaces = self.getSpacingBefore(i) // 10
 
             for num in range(lineSpaces):
@@ -554,7 +551,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
                 para.set("class", htmlMap[line.lt])
                 para.text = " "
 
-            # and now the line text
+            # And now the line text
             para = etree.SubElement(content, "pre")
             para.set("class", htmlMap[line.lt])
             para.text = str(text)
@@ -564,7 +561,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         return htmlHeader + bodyText + htmlFooter
 
     # Return screenplay as list of tuples of the form (elType, elText).
-    # forced linebreaks are represented as \n characters.
+    # Forced linebreaks are represented as \n characters.
     def getElementsAsList(self):
         ls = self.lines
         eleList = []
@@ -589,7 +586,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return eleList
 
-    # Generate a Final Draft XML file and return as string.
+    # Generate a Final Draft XML file and return as string
     def generateFDX(self):
         eleList = self.getElementsAsList()
         fd = etree.Element("FinalDraft")
@@ -637,14 +634,14 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         return etree.tostring(
             fd, xml_declaration=True, encoding='UTF-8', pretty_print=True)
 
-    # generate Fountain and return it as a string.
+    # Generate Fountain and return it as a string
     def generateFountain(self):
         eleList = self.getElementsAsList()
         flines = []
         TWOSPACE = "  "
         sceneStartsList = ("INT", "EXT", "EST", "INT./EXT", "INT/EXT", "I/E", "I./E")
 
-        # does s look like a fountain scene line:
+        # Does s look like a fountain scene line:
         def looksLikeScene(s):
             s = s.upper()
             looksGood = False
@@ -657,7 +654,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         # Generate Title Page
         def generateTitleString(keyword,titleLine,startAt,linePrefix, lineSuffix):
             if (len(titleLine)-startAt)>1:
-                # multi-line
+                # Multi-line
                 flines.append(keyword)
                 for part in titleLine:
                     if startAt > 0:
@@ -692,9 +689,9 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
                 if flines and flines[-1] != "":
                     flines.append("")
 
-            # special handling of some elements.
+            # Special handling of some elements
             if typ == SCENE:
-                # if the line would not be recognized as Scene by fountain,
+                # If the line would not be recognized as Scene by fountain,
                 # append a "." so it is forced as a scene line.
                 if not looksLikeScene(txt):
                     txt = "." + txt
@@ -734,7 +731,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return util.toUTF8("\n".join(flines))
 
-    # generate RTF and return it as a string.
+    # Generate RTF and return it as a string
     def generateRTF(self):
         ls = self.lines
         s = util.String()
@@ -746,16 +743,16 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         mt = util.mm2twips
         fs = self.cfg.fontSize
 
-        # since some of our units (beforeSpacing, indent, width) are
-        # easier to handle if we assume normal font size, this is a scale
-        # factor from actual font size to normal font size
+        # Since some of our units (beforeSpacing, indent, width) are easier to
+        # handle if we assume normal font size, this is a scale factor from
+        # actual font size to normal font size.
         sf = fs / 12.0
 
         for ti in config.getTIs():
             t = self.cfg.getType(ti.lt)
             tt = t.export
 
-            # font size is expressed as font size * 2 in RTF
+            # Font size is expressed as font size * 2 in RTF
             tmp = " \\fs%d" % (fs * 2)
 
             if tt.isCaps:
@@ -770,7 +767,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             if tt.isUnderlined:
                 tmp += r" \ul"
 
-            # some hairy conversions going on here...
+            # Some hairy conversions going on here
             tmp += r" \li%d\ri%d" % (sf * t.indent * 144,
                 mt(self.cfg.paperWidth) -
                       (mt(self.cfg.marginLeft + self.cfg.marginRight) +
@@ -823,10 +820,10 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return str(s)
 
-    # generate PDF and return it as a string. assumes paginate/reformat is
-    # 100% correct for the screenplay. isExport is True if this is an
-    # "export to file" operation, False if we're just going to launch a
-    # PDF viewer with the data.
+    # Generate PDF and return it as a string. assumes paginate/reformat is 100%
+    # correct for the screenplay. isExport is True if this is an "export to
+    # file" operation, False if we're just going to launch a PDF viewer with the
+    # data.
     def generatePDF(self, isExport: bool) -> bytes:
         return pdf.generate(self.generatePML(isExport))
 
@@ -865,19 +862,19 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return pager.doc
 
-    # generate one page of PML data and return it.
+    # Generate one page of PML data and return it.
     #
-    # if forPDF is True, output is meant for PDF generation.
+    # If forPDF is True, output is meant for PDF generation.
     #
-    # if doExtra is False, omits headers and other stuff that is
-    # automatically added, i.e. outputs only actual screenplay lines. also
-    # text style/capitalization is not done 100% correctly. this should
-    # only be True for callers that do not show the results in any way,
-    # just calculate things based on text positions.
+    # If doExtra is False, omits headers and other stuff that is automatically
+    # added, i.e. outputs only actual screenplay lines. Also text
+    # style/capitalization is not done 100% correctly. This should only be True
+    # for callers that do not show the results in any way, just calculate things
+    # based on text positions.
     #
-    # can also return None, which means pagination is not up-to-date and
-    # the given page number doesn't point to a valid page anymore, and the
-    # caller should stop calling this since all pages have been generated
+    # can also return None, which means pagination is not up-to-date and the
+    # given page number doesn't point to a valid page anymore, and the caller
+    # should stop calling this since all pages have been generated
     # (assuming 1-to-n calling sequence).
     def generatePMLPage(self, pager, pageNr, forPDF, doExtra):
         #lsdjflksj = util.TimerDev("generatePMLPage")
@@ -893,24 +890,24 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         start = self.pages[pageNr - 1] + 1
 
         if start >= length:
-            # text has been deleted at end of script and pagination has
-            # not been updated.
+            # Text has been deleted at end of script and pagination has not been
+            # updated.
             return None
 
-        # pagination may not be up-to-date, so any overflow text gets
-        # dumped onto the last page which may thus be arbitrarily long.
+        # Pagination may not be up-to-date, so any overflow text gets dumped
+        # onto the last page which may thus be arbitrarily long.
         if pageNr == (len(self.pages) - 1):
             end = length - 1
         else:
-            # another side-effect is that if text is deleted at the end,
-            # self.pages can point to lines that no longer exist, so we
-            # need to clamp it.
+            # Another side effect is that if text is deleted at the end,
+            # self.pages can point to lines that no longer exist, so we need to
+            # clamp it.
             end = util.clamp(self.pages[pageNr], maxVal = length - 1)
 
         pg = pml.Page(pager.doc)
 
-        # what line we're on, counted from first line after top
-        # margin, units = line / 10
+        # What line we're on, counted from first line after top margin
+        # units = line / 10
         y = 0
 
         if pageNr != 1:
@@ -1066,19 +1063,19 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         pg.add(pml.TextOp(s, cfg.marginLeft + (width + 1) * chX,
             cfg.marginTop + (y / 10.0) * chY, cfg.fontSize))
 
-    # get topLine, clamping it to the valid range in the process.
+    # Get topLine, clamping it to the valid range in the process.
     def getTopLine(self):
         self._topLine = util.clamp(self._topLine, 0, len(self.lines) - 1)
 
         return self._topLine
 
-    # set topLine, clamping it to the valid range.
+    # Set topLine, clamping it to the valid range.
     def setTopLine(self, line):
         self._topLine = util.clamp(line, 0, len(self.lines) - 1)
 
     def reformatAll(self):
-        # doing a reformatAll while we have undo history will completely
-        # break undo, so that can't be allowed.
+        # Doing a reformatAll while we have undo history will completely break
+        # undo, so that can't be allowed.
         assert not self.firstUndo
 
         #sfdlksjf = util.TimerDev("reformatAll")
@@ -1090,12 +1087,12 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             if line >= len(self.lines):
                 break
 
-    # reformat part of the screenplay. par1 is line number of paragraph to
-    # start at, par2 the same for the ending one, inclusive.
+    # Reformat part of the screenplay. par1 is line number of paragraph to start
+    # at, par2 the same for the ending one, inclusive.
     def reformatRange(self, par1, par2):
         ls = self.lines
 
-        # add special tag to last paragraph we'll reformat
+        # Add special tag to last paragraph we'll reformat
         ls[par2].reformatMarker = 0
         end = False
 
@@ -1109,19 +1106,18 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             if end:
                 break
 
-    # wraps a single line into however many lines are needed, according to
-    # the type's width. doesn't modify the input line, returns a list of
-    # new lines.
+    # Wraps a single line into however many lines are needed, according to the
+    # type's width. Doesn't modify the input line, returns a list of new lines.
     def wrapLine(self, line):
         ret = []
         width = self.cfg.getType(line.lt).width
         isParen = line.lt == PAREN
 
-        # text remaining to be wrapped
+        # Text remaining to be wrapped
         text = line.text
 
         while 1:
-            # reduce parenthetical width by 1 from second line onwards
+            # Reduce parenthetical width by 1 from second line onwards
             if isParen and ret:
                 w = width - 1
             else:
@@ -1135,20 +1131,18 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
                 if i == w:
 
-                    # we allow space characters to go over the line
-                    # length, for two reasons:
+                    # We allow space characters to go over the line length,
+                    # for two reasons:
                     #
-                    # 1) it is impossible to get the behavior right
-                    # otherwise in situations where a line ends in two
-                    # spaces and the user inserts a non-space character at
-                    # the end of the line. the cursor must be positioned
-                    # at the second space character for this to work
-                    # right, and the only way to get that is to allow
-                    # spaces to go over the normal line length.
+                    # 1) It is impossible to get the behavior right otherwise in
+                    # situations where a line ends in two spaces and the user
+                    # inserts a non-space character at the end of the line. The
+                    # cursor must be positioned at the second space character
+                    # for this to work right, and the only way to get that is to
+                    # allow spaces to go over the normal line length.
                     #
-                    # 2) doing this results in no harm, since space
-                    # characters print as empty, so they don't overwrite
-                    # anything.
+                    # 2) Doing this results in no harm, since space characters
+                    # print as empty, so they don't overwrite anything.
 
                     i += 1
                     while text[i:i + 1] == " ":
@@ -1172,9 +1166,9 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return ret
 
-    # rewrap paragraph starting at given line. returns the number of lines
-    # in the wrapped paragraph. if line1 is -1, rewraps paragraph
-    # containing self.line. maintains cursor position correctness.
+    # Rewrap paragraph starting at given line. Returns the number of lines in
+    # the wrapped paragraph. If line1 is -1, rewraps paragraph containing
+    # self.line. Maintains cursor position correctness.
     def rewrapPara(self, line1 = -1):
         ls = self.lines
 
@@ -1187,8 +1181,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             line2 += 1
 
         if (self.line >= line1) and (self.line <= line2):
-            # cursor is in this paragraph, save its offset from the
-            # beginning of the paragraph
+            # Cursor is in this paragraph, save its offset from the beginning of
+            # the paragraph.
             cursorOffset = 0
 
             for i in range(line1, line2 + 1):
@@ -1211,7 +1205,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         wrappedLines = self.wrapLine(tmp)
         ls[line1:line2 + 1] = wrappedLines
 
-        # adjust cursor position
+        # Adjust cursor position
         if cursorOffset != -1:
             for i in range(line1, line1 + len(wrappedLines)):
                 ln = ls[i]
@@ -1225,13 +1219,13 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
                     cursorOffset -= llen
 
         elif self.line >= line1:
-            # cursor position is below current paragraph, modify its
-            # linenumber appropriately
+            # Cursor position is below current paragraph, modify its linenumber
+            # appropriately
             self.line += len(wrappedLines) - (line2 - line1 + 1)
 
         return len(wrappedLines)
 
-    # rewraps paragraph previous to current one.
+    # Re-wraps paragraph previous to current one
     def rewrapPrevPara(self):
         line = self.getParaFirstIndexFromLine(self.line)
 
@@ -1241,8 +1235,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         line = self.getParaFirstIndexFromLine(line - 1)
         self.rewrapPara(line)
 
-    # rewrap element starting at given line. if line is -1, rewraps
-    # element containing self.line.
+    # Re-wrap element starting at given line. If line is -1, re-wraps element
+    # containing self.line.
     def rewrapElem(self, line = -1):
         ls = self.lines
 
@@ -1262,12 +1256,12 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         return self.lines[line].lb == LB_LAST
 
     def isOnlyLineOfElem(self, line):
-        # this is just "isLastLineOfElem(line) and isFirstLineOfElem(line)"
+        # This is just "isLastLineOfElem(line) and isFirstLineOfElem(line)"
         # inlined here, since it's 130% faster this way.
         return (self.lines[line].lb == LB_LAST) and \
                ((line == 0) or (self.lines[line - 1].lb == LB_LAST))
 
-    # get first index of paragraph
+    # Get first index of paragraph
     def getParaFirstIndexFromLine(self, line):
         ls = self.lines
 
@@ -1284,7 +1278,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return line
 
-    # get last index of paragraph
+    # Get last index of paragraph
     def getParaLastIndexFromLine(self, line):
         ls = self.lines
 
@@ -1413,7 +1407,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return (top, bottom)
 
-    # return scene number for the given line. if line is -1, return 0.
+    # Return scene number for the given line. If line is -1, return 0.
     def getSceneNumber(self, line):
         ls = self.lines
         sc = SCENE
@@ -1425,11 +1419,10 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return scene
 
-    # return how many elements one must advance to get from element
-    # containing line1 to element containing line2. line1 must be <=
-    # line2, and either line can be anywhere in their respective elements.
-    # returns 0 if they're in the same element, 1 if they're in
-    # consecutive elements, etc.
+    # Return how many elements one must advance to get from element containing
+    # line1 to element containing line2. Line1 must be <= line2, and either line
+    # can be anywhere in their respective elements. Returns 0 if they're in the
+    # same element, 1 if they're in consecutive elements, etc.
     def elemsDistance(self, line1, line2):
         ls = self.lines
 
@@ -1444,7 +1437,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return count
 
-    # returns true if 'line', which must be the last line on a page, needs
+    # Returns true if 'line', which must be the last line on a page, needs
     # (MORE) after it and the next page needs a "SOMEBODY (cont'd)".
     def needsMore(self, line):
         ls = self.lines
@@ -1453,9 +1446,9 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
            and (line != (len(ls) - 1)) and\
            ls[line + 1].lt in (DIALOGUE, PAREN)
 
-    # starting at line, go backwards until a line with type of CHARACTER
-    # and lb of LAST is found, and return that line's text, possibly
-    # upper-cased if CHARACTER's config for export says so.
+    # Starting at line, go backwards until a line with type of CHARACTER and lb
+    # of LAST is found, and return that line's text, possibly upper-cased if
+    # CHARACTER's config for export says so.
     def getPrevSpeaker(self, line):
         ls = self.lines
 
@@ -1475,12 +1468,12 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
             line -= 1
 
-    # return total number of characters in script
+    # Return total number of characters in script
     def getCharCount(self):
         return sum([len(ln.text) for ln in self.lines])
 
     def paginate(self):
-        #sfdlksjf = util.TimerDev("paginate")
+        # sfdlksjf = util.TimerDev("paginate")
 
         self.pages = [-1]
         self.pagesNoAdjust = [-1]
@@ -1491,7 +1484,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         length = len(ls)
         lastBreak = -1
 
-        # fast aliases for stuff
+        # Fast aliases for stuff
         lbl = LB_LAST
         ct = cfg.types
         hdrLines = self.headers.getNrOfLines()
@@ -1503,25 +1496,25 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             if i != 0:
                 lp -= hdrLines * 10
 
-                # decrease by 2 if we have to put a "CONTINUED:" on top of
-                # this page.
+                # Decrease by 2 if we have to put a "CONTINUED:" on top of this
+                # page
                 if cfg.sceneContinueds and not self.isFirstLineOfScene(i):
                     lp -= 20
 
-                # decrease by 1 if we have to put a "WHOEVER (cont'd)" on
-                # top of this page.
+                # Decrease by 1 if we have to put a "WHOEVER (cont'd)" on top of
+                # this page
                 if self.needsMore(i - 1):
                     lp -= 10
 
-            # just a safeguard
+            # Just a safeguard
             lp = max(50, lp)
 
             pageLines = 0
             if i < length:
                 pageLines = 10
 
-                # advance i until it points to the last line to put on
-                # this page (before adjustments)
+                # Advance i until it points to the last line to put on this page
+                # (before adjustments)
 
                 while i < (length - 1):
 
@@ -1595,7 +1588,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
                             if first > (lastBreak + 1):
                                 linesOnThisPage = i - first + 1
 
-                                # do we need to reserve one line for (MORE)
+                                # Do we need to reserve one line for (MORE)
                                 reserveLine = not (cutDialogue or cutParen)
 
                                 val = cfg.pbDialogueLines
@@ -1610,7 +1603,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
                                         i -= 1
                                     break
                             else:
-                                # leave space for (MORE)
+                                # Leave space for (MORE)
                                 i -= 1
                                 break
 
@@ -1628,8 +1621,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
                         if i == oldI:
                             break
 
-            # make sure no matter how buggy the code above is, we always
-            # advance at least one line per page
+            # Make sure no matter how buggy the code above is, we always advance
+            # at least one line per page.
             i = max(i, lastBreak + 1)
 
             self.pages.append(i)
@@ -1652,10 +1645,9 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             if ln.lt != lt:
                 break
 
-            # only remove one element at most, to avoid generating
-            # potentially thousands of pages in degenerate cases when
-            # script only contains scenes or characters or something like
-            # that.
+            # Only remove one element at most, to avoid generating potentially
+            # thousands of pages in degenerate cases when script only contains
+            # scenes or characters or something like that.
             if (line != startLine) and (ln.lb == LB_LAST):
                 break
 
@@ -1663,9 +1655,9 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return line
 
-    # convert element(s) to given type
-    #  - if multiple elements are selected, all are changed
-    #  - if not, the change is applied to element under cursor.
+    # Convert element(s) to given type
+    #   - If multiple elements are selected, all are changed
+    #   - If not, the change is applied to element under cursor
     def convertTypeTo(self, lt, saveUndo):
         ls = self.lines
         selection = self.getMarkedLines()
@@ -1686,7 +1678,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         while currentLine <= endSection:
             first, last = self.getElemIndexesFromLine(currentLine)
 
-            # if changing away from PAREN containing only "()", remove it
+            # If changing away from PAREN containing only "()", remove it.
             if (first == last) and (ls[first].lt == PAREN) and\
                    (ls[first].text == "()"):
                 ls[first].text = ""
@@ -1697,7 +1689,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             for i in range(first, last + 1):
                 ls[i].lt = lt
 
-            # if changing empty element to PAREN, add "()"
+            # If changing empty element to PAREN, add "()".
             if (first == last) and (ls[first].lt == PAREN) and\
                    (len(ls[first].text) == 0):
                 ls[first].text = "()"
@@ -1710,11 +1702,11 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         if selection:
             self.clearMark()
 
-            # this is moderately complex because we need to deal with
-            # forced linebreaks; reformatRange wants paragraph indexes but
-            # we are converting elements, so we must find the indexes of
-            # the a) first paragraph of the first selected element and b)
-            # last paragraph of the last selected element
+            # This is moderately complex because we need to deal with forced
+            # linebreaks; reformatRange wants paragraph indexes, but we are
+            # converting elements, so we must find the indexes of the
+            #   a) first paragraph of the first selected element and
+            #   b) last paragraph of the last selected element
 
             self.reformatRange(
                 self.getElemFirstIndexFromLine(startSection),
@@ -1728,8 +1720,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             u.setAfter(self)
             self.addUndo(u)
 
-    # join lines 'line' and 'line + 1' and position cursor at the join
-    # position.
+    # Join lines 'line' and 'line + 1' and position cursor at the join position
     def joinLines(self, line):
         ls = self.lines
         ln = ls[line]
@@ -1744,7 +1735,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         self.line = line
         self.column = pos
 
-    # split current line at current column position.
+    # Split current line at current column position
     def splitLine(self):
         ln = self.lines[self.line]
 
@@ -1760,8 +1751,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         self.column = 0
         self.markChanged()
 
-    # split element at current position. newType is type to give to the
-    # new element.
+    # Split element at current position. newType is type to give to the new
+    # element.
     def splitElement(self, newType):
         ls = self.lines
 
@@ -1791,8 +1782,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         u.setAfter(self)
         self.addUndo(u)
 
-    # delete character at given position and optionally position
-    # cursor there.
+    # Delete character at given position and optionally position cursor there
     def deleteChar(self, line, column, posCursor = True):
         s = self.lines[line].text
         self.lines[line].text = s[:column] + s[column + 1:]
@@ -1801,7 +1791,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             self.column = column
             self.line = line
 
-    # set line types from 'line' to the end of the element to 'lt'.
+    # Set line types from 'line' to the end of the element to 'lt'
     def setLineTypes(self, line, lt):
         ls = self.lines
 
@@ -1834,10 +1824,10 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return lo
 
-    # return (startLine, endLine) for given page number (1-based). if
-    # pageNr is out of bounds, it is clamped to the valid range. if
-    # pagination is out of date and the lines no longer exist, they are
-    # clamped to the valid range as well.
+    # Return (startLine, endLine) for given page number (1-based). If pageNr is
+    # out of bounds, it is clamped to the valid range. If pagination is out of
+    # date and the lines no longer exist, they are clamped to the valid range as
+    # well.
     def page2lines(self, pageNr):
         pageNr = util.clamp(pageNr, 1, len(self.pages) - 1)
         last = len(self.lines) - 1
@@ -1845,7 +1835,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         return (util.clamp(self.pages[pageNr - 1] + 1, 0, last),
                 util.clamp(self.pages[pageNr], 0, last))
 
-    # return a list of all page numbers as strings.
+    # Return a list of all page numbers as strings
     def getPageNumbers(self):
         pages = []
 
@@ -1854,10 +1844,10 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return pages
 
-    # return a list of all scene locations in a [(sceneNumber, startLine),
-    # ...] format. if script does not start with a scene line, that scene
-    # is not included in this list. note that the sceneNumber in the
-    # returned list is a string, not a number.
+    # Return a list of all scene locations in a [(sceneNumber, startLine), ...]
+    # format. If script does not start with a scene line, that scene is not
+    # included in this list. Note that the sceneNumber in the returned list is a
+    # string, not a number.
     def getSceneLocations(self):
         ls = self.lines
         sc = SCENE
@@ -1871,8 +1861,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return ret
 
-    # return a dictionary of all scene names (single-line text elements
-    # only, upper-cased, values = None).
+    # Return a dictionary of all scene names (single-line text elements only,
+    # upper-cased, values = None).
     def getSceneNames(self):
         names = {}
 
@@ -1882,8 +1872,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return names
 
-    # return a dictionary of all character names (single-line text
-    # elements only, lower-cased, values = None).
+    # Return a dictionary of all character names (single-line text elements
+    # only, lower-cased, values = None).
     def getCharacterNames(self):
         names = {}
 
@@ -1895,11 +1885,11 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return names
 
-    # get next word, starting at (line, col). line must be valid, but col
-    # can point after the line's length, in which case the search starts
-    # at (line + 1, 0). returns (word, line, col), where word is None if
-    # at end of script, and (line, col) point to the start of the word.
-    # note that this only handles words that are on a single line.
+    # Get next word, starting at (line, col). Line must be valid, but col can
+    # point after the line's length, in which case the search starts at
+    # (line + 1, 0). Returns (word, line, col), where word is None if at end of
+    # script, and (line, col) point to the start of the word. Note that this
+    # only handles words that are on a single line.
     def getWord(self, line, col):
         ls = self.lines
 
@@ -1936,8 +1926,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             else:
                 col += 1
 
-    # returns True if we're at second-to-last character of PAREN element,
-    # and last character is ")"
+    # Returns True if we're at second-to-last character of PAREN element, and
+    # last character is ")".
     def isAtEndOfParen(self):
         ls = self.lines
 
@@ -1945,8 +1935,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
            (ls[self.line].lt == PAREN) and\
            (ls[self.line].text[self.column:] == ")")
 
-    # returns True if pressing TAB at current position would make a new
-    # element, False if it would just change element's type.
+    # Returns True if pressing TAB at current position would make a new element,
+    # False if it would just change element's type.
     def tabMakesNew(self):
         l = self.lines[self.line]
 
@@ -1961,8 +1951,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return True
 
-    # if auto-completion is active, clear it and return True. otherwise
-    # return False.
+    # If auto-completion is active, clear it and return True. otherwise return
+    # False.
     def clearAutoComp(self):
         if not self.acItems:
             return False
@@ -1981,7 +1971,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             self.acItems = self.getMatchingText(ls[self.line].text, lt)
             self.acSel = 0
 
-    # page up (dir == -1) or page down (dir == 1) was pressed and we're in
+    # Page up (dir == -1) or page down (dir == 1) was pressed, and we're in
     # auto-comp mode, handle it.
     def pageScrollAutoComp(self, dir):
         if len(self.acItems) > self.acMax:
@@ -1995,9 +1985,9 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             else:
                 self.acSel = (self.acSel + self.acMax) % len(self.acItems)
 
-    # get a list of strings (single-line text elements for now) that start
-    # with 'text' (not case sensitive) and are of of type 'type'. also
-    # mixes in the type's default items from config. ignores current line.
+    # Get a list of strings (single-line text elements for now) that start with
+    # 'text' (not case-sensitive) and are of type 'type'. Also mixes in the
+    # type's default items from config. Ignores current line.
     def getMatchingText(self, text, lt):
         text = util.upper(text)
         t = self.autoCompletion.getType(lt)
@@ -2031,10 +2021,10 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return mlist
 
-    # returns pair (start, end) of marked lines, inclusive. if mark is
-    # after the end of the script (text has been deleted since setting
-    # it), returns a valid pair (by truncating selection to current
-    # end). returns None if no lines marked.
+    # Returns pair (start, end) of marked lines, inclusive. If mark is after the
+    # end of the script (text has been deleted since setting it), returns a
+    # valid pair (by truncating selection to current end). Returns None if no
+    # lines marked.
     def getMarkedLines(self):
         if not self.mark:
             return None
@@ -2046,35 +2036,35 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         else:
             return (mark, self.line)
 
-    # returns pair (start, end) (inclusive) of marked columns for the
-    # given line (line must be inside the marked lines). 'marked' is the
-    # value returned from getMarkedLines. if marked column is invalid
-    # (text has been deleted since setting the mark), returns a valid pair
-    # by truncating selection as needed. returns None on errors.
+    # Returns pair (start, end) (inclusive) of marked columns for the given line
+    # (line must be inside the marked lines). 'marked' is the value returned
+    # from getMarkedLines. If marked column is invalid (text has been deleted
+    # since setting the mark), returns a valid pair by truncating selection as
+    # needed. Returns None on errors.
     def getMarkedColumns(self, line, marked):
         if not self.mark:
             return None
 
-        # line is not marked at all
+        # Line is not marked at all
         if (line < marked[0]) or (line > marked[1]):
             return None
 
         ls = self.lines
 
-        # last valid offset for given line's text
+        # Last valid offset for given line's text
         lvo = max(0, len(ls[line].text) - 1)
 
-        # only one line marked
+        # Only one line marked
         if (line == marked[0]) and (marked[0] == marked[1]):
             c1 = min(self.mark.column, self.column)
             c2 = max(self.mark.column, self.column)
 
-        # line is between end lines, so totally marked
+        # Line is between end lines, so totally marked.
         elif (line > marked[0]) and (line < marked[1]):
             c1 = 0
             c2 = lvo
 
-        # line is first line marked
+        # Line is first line marked
         elif line == marked[0]:
 
             if line == self.line:
@@ -2085,7 +2075,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
             c2 = lvo
 
-        # line is last line marked
+        # Line is last line marked
         elif line == marked[1]:
 
             if line == self.line:
@@ -2096,7 +2086,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
             c1 = 0
 
-        # should't happen
+        # Shouldn't happen
         else:
             return None
 
@@ -2105,13 +2095,13 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return (c1, c2)
 
-    # checks if a line is marked. 'marked' is the value returned from
+    # Checks if a line is marked. 'marked' is the value returned from
     # getMarkedLines.
     def isLineMarked(self, line, marked):
         return (line >= marked[0]) and (line <= marked[1])
 
-    # get selected text as a ClipData object, optionally deleting it from
-    # the script. if nothing is selected, returns None.
+    # Get selected text as a ClipData object, optionally deleting it from the
+    # script. If nothing is selected, returns None.
     def getSelectedAsCD(self, doDelete):
         marked = self.getMarkedLines()
 
@@ -2136,11 +2126,11 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         u = undo.AnyDifference(self)
 
-        # range of lines, inclusive, that we need to totally delete
+        # Range of lines, inclusive, that we need to totally delete.
         del1 = sys.maxsize
         del2 = -1
 
-        # delete selected text from the lines
+        # Delete selected text from the lines
         for i in range(marked[0], marked[1] + 1):
             c1, c2 = self.getMarkedColumns(i, marked)
 
@@ -2150,35 +2140,34 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             if i == marked[0]:
                 endCol = c1
 
-            # if we removed all text, mark this line to be deleted
+            # If we removed all text, mark this line to be deleted.
             if len(ln.text) == 0:
                 del1 = min(del1, i)
                 del2 = max(del2, i)
 
-        # adjust linebreaks
+        # Adjust linebreaks
         if marked[0] == marked[1]:
 
-            # user has selected text from a single line only
+            # User has selected text from a single line only
 
             ln = ls[marked[0]]
 
-            # if it is a single-line element, we never need to modify
-            # its linebreak
+            # If it is a single-line element, we never need to modify its
+            # linebreak
             if not self.isOnlyLineOfElem(marked[0]):
-                # if we're totally deleting the line and it's the last
-                # line of a multi-line element, mark the preceding
-                # line as the new last line of the element.
+                # If we're totally deleting the line, and it's the last line of
+                # a multi-line element, mark the preceding line as the new last
+                # line of the element.
 
                 if not ln.text and self.isLastLineOfElem(marked[0]):
                     ls[marked[0] - 1].lb = LB_LAST
 
         else:
 
-            # now find the line whose linebreak we need to adjust. if
-            # the starting line is not completely removed, it is that,
-            # otherwise it is the preceding line, unless we delete the
-            # first line of the element, in which case there's nothing
-            # to adjust.
+            # Now find the line whose linebreak we need to adjust. If the
+            # starting line is not completely removed, it is that, otherwise it
+            # is the preceding line, unless we delete the first line of the
+            # element, in which case there's nothing to adjust.
             if ls[marked[0]].text:
                 ln = ls[marked[0]]
             else:
@@ -2188,21 +2177,19 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
                     ln = None
 
             if ln:
-                # if the selection ends by removing completely the
-                # last line of an element, we need to mark the
-                # element's new end, otherwise we must set it to
-                # LB_NONE so that the new element is reformatted
-                # properly.
+                # If the selection ends by removing completely the last line of
+                # an element, we need to mark the element's new end, otherwise
+                # we must set it to LB_NONE so that the new element is
+                # reformatted properly.
                 if self.isLastLineOfElem(marked[1]) and \
                        not ls[marked[1]].text:
                     ln.lb = LB_LAST
                 else:
                     ln.lb = LB_NONE
 
-        # if we're joining two elements we have to change the line
-        # types for the latter element (starting from the last marked
-        # line, because everything before that will get deleted
-        # anyway) to that of the first element.
+        # If we're joining two elements we have to change the line types for the
+        # latter element (starting from the last marked line, because everything
+        # before that will get deleted anyway) to that of the first element.
         self.setLineTypes(marked[1], ls[marked[0]].lt)
 
         del ls[del1:del2 + 1]
@@ -2223,7 +2210,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return cd
 
-    # paste data into script. clines is a list of Line objects.
+    # Paste data into script. clines is a list of Line objects.
     def paste(self, clines):
         if len(clines) == 0:
             return
@@ -2233,7 +2220,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         inLines = []
         i = 0
 
-        # wrap all paragraphs into single lines
+        # Wrap all paragraphs into single lines
         while 1:
             if i >= len(clines):
                 break
@@ -2256,13 +2243,13 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             newLine.lb = ln.lb
             inLines.append(newLine)
 
-        # shouldn't happen, but...
+        # Shouldn't happen, but...
         if len(inLines) == 0:
             return
 
         ls = self.lines
 
-        # where we need to start wrapping
+        # Where we need to start wrapping
         wrap1 = self.getParaFirstIndexFromLine(self.line)
 
         ln = ls[self.line]
@@ -2284,23 +2271,21 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
                 ls[self.line:self.line] = inLines[1:]
                 self.line += len(inLines) - 2
 
-                # FIXME: pasting a multi-paragraph ACTION where first line
-                # has FORCED lb, in middle of a CHARACTER block, breaks
-                # things
+                # FIXME: pasting a multi-paragraph ACTION where first line has
+                #  FORCED lb, in middle of a CHARACTER block, breaks things.
 
             else:
                 ls[self.line + 1:self.line + 1] = inLines[1:]
                 self.line += len(inLines) - 1
 
-                # FIXME: this doesn't modify .lb, and pasting a
-                # multi-paragraph ACTION at end of line in CHARACTER block
-                # where that line ends in forced linebreak breaks things.
+                # FIXME: this doesn't modify .lb, and pasting a multi-paragraph
+                #  ACTION at end of line in CHARACTER block where that line ends
+                #  in forced linebreak breaks things.
 
             self.column = len(ls[self.line].text)
 
-        # FIXME: copy/paste, when copying elements containing forced
-        # linebreaks, converts them to end of element? this seems like a
-        # bug...
+        # FIXME: copy/paste, when copying elements containing forced linebreaks,
+        #  converts them to end of element? This seems like a bug.
 
         self.reformatRange(wrap1, self.getParaFirstIndexFromLine(self.line))
 
@@ -2311,8 +2296,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         self.clearAutoComp()
         self.markChanged()
 
-    # returns true if a character, inserted at current position, would
-    # need to be capitalized as a start of a sentence.
+    # Returns true if a character, inserted at current position, would need to
+    # be capitalized as a start of a sentence.
     def capitalizeNeeded(self):
         if not self.cfgGl.capitalize:
             return False
@@ -2325,8 +2310,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         if (column < len(text)) and (text[column] != " "):
             return False
 
-        # go backwards at most 4 characters, looking for "!?.", and
-        # breaking on anything other than space or ".
+        # Go backwards at most 4 characters, looking for "!?.", and breaking on
+        # anything other than space or ".
 
         cnt = 1
         while 1:
@@ -2362,7 +2347,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
                 char = text[column]
 
             if cnt == 1:
-                # must be preceded by a space
+                # Must be preceded by a space
                 if char != " ":
                     return False
             else:
@@ -2378,15 +2363,14 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return False
 
-    # find next error in screenplay, starting at given line. returns
-    # (line, msg) tuple, where line is -1 if no error was found and the
-    # line number otherwise where the error is, and msg is a description
-    # of the error
+    # Find next error in screenplay, starting at given line. Returns (line, msg)
+    # tuple, where line is -1 if no error was found and the line number
+    # otherwise where the error is, and msg is a description of the error.
     def findError(self, line):
         ls = self.lines
         cfg = self.cfg
 
-        # type of previous line, or None when a new element starts
+        # Type of previous line, or None when a new element starts.
         prevType = None
 
         msg = None
@@ -2404,10 +2388,10 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             prev = self.getTypeOfPrevElem(line)
             next = self.getTypeOfNextElem(line)
 
-            # notes are allowed to contain empty lines, because a) they do
-            # not appear in the final product b) they're basically
-            # free-format text anyway, and people may want to format them
-            # however they want
+            # Notes are allowed to contain empty lines, because
+            #   a) they do not appear in the final product
+            #   b) they're basically free-format text anyway, and people may
+            #   want to format them however they want
 
             if (len(ln.text) == 0) and (ln.lt != NOTE):
                 msg = "Empty line."
@@ -2465,17 +2449,17 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return (line, msg)
 
-    # compare this script to sp2 (Screenplay), return a PDF file (as a
-    # string) of the differences, or None if the scripts are identical.
+    # Compare this script to sp2 (Screenplay), return a PDF file (as a string)
+    # of the differences, or None if the scripts are identical.
     def compareScripts(self, sp2) -> bytes:
         s1 = self.generateText(False).split("\n")
         s2 = sp2.generateText(False).split("\n")
 
         dltTmp = difflib.unified_diff(s1, s2, lineterm = "")
 
-        # get rid of stupid delta generator object that doesn't allow
-        # subscription or anything else really. also expands hunk
-        # separators into three lines.
+        # Get rid of stupid delta generator object that doesn't allow
+        # subscription or anything else really. Also expands hunk separators
+        # into three lines.
         dlt = []
         i = 0
         for s in dltTmp:
@@ -2492,25 +2476,25 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         dltTmp = dlt
 
-        # now, generate changed-lines for single-line diffs
+        # Now generate changed-lines for single-line diffs
         dlt = []
         for i in range(len(dltTmp)):
             s = dltTmp[i]
 
             dlt.append(s)
 
-            # this checks that we've just added a sequence of lines whose
-            # first characters are " -+", where " " means '"not -" or
-            # missing line', and that we're either at end of list or next
-            # line does not start with "+".
+            # This checks that we've just added a sequence of lines whose first
+            # characters are " -+", where " " means '"not -" or missing line',
+            # and that we're either at end of list or next line does not start
+            # with "+".
 
             if (s[0] == "+") and \
                (i != 0) and (dltTmp[i - 1][0] == "-") and (
                 (i == 1) or (dltTmp[i - 2][0] != "-")) and (
                 (i == (len(dltTmp) - 1)) or (dltTmp[i + 1][0] != "+")):
 
-                # generate line with "^" character at every position that
-                # the lines differ
+                # Generate line with "^" character at every position that the
+                # lines differ
 
                 s1 = dltTmp[i - 1]
                 s2 = dltTmp[i]
@@ -2542,15 +2526,14 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         doc = pml.Document(cfg.paperWidth, cfg.paperHeight)
 
-        # how many lines put on current page
+        # How many lines put on current page
         y = 0
 
         pg = pml.Page(doc)
 
-        # we need to gather text ops for each page into a separate list
-        # and add that list to the page only after all other ops are
-        # added, otherwise the colored bars will be drawn partially over
-        # some characters.
+        # We need to gather text ops for each page into a separate list and add
+        # that list to the page only after all other ops are added, otherwise
+        # the colored bars will be drawn partially over some characters.
         textOps = []
 
         for s in dlt:
@@ -2603,7 +2586,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         return pdf.generate(doc)
 
-    # move to line,col, and if mark is True, set mark there
+    # Move to line,col, and if mark is True, set mark there.
     def gotoPos(self, line, col, mark = False):
         self.clearAutoComp()
 
@@ -2613,7 +2596,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         if mark and not self.mark:
             self.setMark(line, col)
 
-    # remove all lines whose element types are in tdict as keys.
+    # Remove all lines whose element types are in tdict as keys
     def removeElementTypes(self, tdict, saveUndo):
         self.clearAutoComp()
 
@@ -2624,8 +2607,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         lsOld = self.lines
         sl = self.line
 
-        # how many lines were removed from above the current line
-        # (inclusive)
+        # How many lines were removed from above the current line (inclusive)
         cnt = 0
 
         for i in range(len(lsOld)):
@@ -2660,19 +2642,19 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
     def clearMark(self):
         self.mark = None
 
-    # if doIt is True and mark is not yet set, set it at current position.
+    # If doIt is True and mark is not yet set, set it at current position.
     def maybeMark(self, doIt):
         if doIt and not self.mark:
             self.setMark(self.line, self.column)
 
-    # make sure current line and column are within the valid bounds.
+    # Make sure current line and column are within the valid bounds
     def validatePos(self):
         self.line = util.clamp(self.line, 0, len(self.lines) - 1)
         self.column = util.clamp(self.column, 0,
                                  len(self.lines[self.line].text))
 
-    # this must be called after each command (all functions named fooCmd
-    # are commands)
+    # This must be called after each command (all functions named fooCmd are
+    # commands)
     def cmdPost(self, cs):
         # TODO: is this needed?
         self.column = min(self.column, len(self.lines[self.line].text))
@@ -2682,8 +2664,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         elif cs.doAutoComp == cs.AC_REDO:
             self.fillAutoComp()
 
-    # helper function for calling commands. name is the name of the
-    # command, e.g. "moveLeft".
+    # Helper function for calling commands. name is the name of the command,
+    # e.g. "moveLeft".
     def cmd(self, name, char = None, count = 1):
         for i in range(count):
             cs = CommandState()
@@ -2694,8 +2676,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             getattr(self, name + "Cmd")(cs)
             self.cmdPost(cs)
 
-    # call addCharCmd for each character in s. ONLY MEANT TO BE USED IN
-    # TEST CODE.
+    # Call addCharCmd for each character in s. ONLY MEANT TO BE USED IN TEST
+    # CODE.
     def cmdChars(self, s):
         for char in s:
             self.cmd("addChar", char = char)
@@ -2798,7 +2780,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         u = None
         mergeUndo = False
 
-        # only merge with the previous item in undo history if:
+        # Only merge with the previous item in undo history if:
         #   -we are not in middle of undo/redo
         #   -previous item is "delete backward"
         #   -cursor is exactly where it was left off by the previous item
@@ -2819,10 +2801,10 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             if self.line != 0:
                 ln = self.lines[self.line - 1]
 
-                # delete at start of the line of the first line of the
-                # element means "join up with previous element", so is a
-                # 2->1 change. otherwise we just delete a character from
-                # current element so no element count change.
+                # Delete at start of the line of the first line of the element
+                # means "join up with previous element", so is a 2->1 change.
+                # Otherwise, we just delete a character from current element so
+                # no element count change.
                 if ln.lb == LB_LAST:
                     u = undo.ManyElems(self, undo.CMD_MISC, self.line - 1, 2, 1)
                     mergeUndo = False
@@ -2851,7 +2833,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         u = None
         mergeUndo = False
 
-        # only merge with the previous item in undo history if:
+        # Only merge with the previous item in undo history if:
         #   -we are not in middle of undo/redo
         #   -previous item is "delete forward"
         #   -cursor is exactly where it was left off by the previous item
@@ -2872,10 +2854,10 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             if self.line != (len(self.lines) - 1):
                 ln = self.lines[self.line]
 
-                # delete at end of the line of the last line of the
-                # element means "join up with next element", so is a 2->1
-                # change. otherwise we just delete a character from
-                # current element so no element count change.
+                # Delete at end of the line of the last line of the element
+                # means "join up with next element", so is a 2->1 change.
+                # Otherwise, we just delete a character from current element so
+                # no element count change.
                 if ln.lb == LB_LAST:
                     u = undo.ManyElems(self, undo.CMD_MISC, self.line, 2, 1)
                     mergeUndo = False
@@ -2899,11 +2881,11 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
                 u.setAfter(self)
                 self.addUndo(u)
 
-    # aborts stuff, like selection, auto-completion, etc
+    # Aborts stuff, like selection, auto-completion, etc.
     def abortCmd(self, cs):
         self.clearMark()
 
-    # select all text of current scene
+    # Select all text of current scene
     def selectSceneCmd(self, cs):
         l1, l2 = self.getSceneIndexes()
 
@@ -2912,8 +2894,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         self.line = l2
         self.column = len(self.lines[l2].text)
 
-    # select all text of the screenplay. sets mark at beginning and moves
-    # cursor to the end.
+    # Select all text of the screenplay. Sets mark at beginning and moves cursor
+    # to the end.
     def selectAllCmd(self, cs):
         self.setMark(0, 0)
 
@@ -2938,8 +2920,8 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
     def setMarkCmd(self, cs):
         self.setMark(self.line, self.column)
 
-    # either creates a new element or converts the current one to
-    # nextTypeTab, depending on circumstances.
+    # Either creates a new element or converts the current one to nextTypeTab,
+    # depending on circumstances.
     def tabCmd(self, cs):
         if self.mark:
             self.clearMark()
@@ -2953,7 +2935,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         else:
             self.convertTypeTo(tcfg.nextTypeTab, True)
 
-    # switch current element to prevTypeTab.
+    # Switch current element to prevTypeTab
     def toPrevTypeTabCmd(self, cs):
         if self.mark:
             self.clearMark()
@@ -2963,7 +2945,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         tcfg = self.cfgGl.getType(self.lines[self.line].lt)
         self.convertTypeTo(tcfg.prevTypeTab, True)
 
-    # add character cs.char if it's a valid one.
+    # Add character cs.char if it's a valid one
     def addCharCmd(self, cs):
         char = cs.char
 
@@ -2977,15 +2959,15 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         isSpace = char == " "
 
-        # only merge with the previous item in undo history if:
+        # Only merge with the previous item in undo history if:
         #   -we are not in middle of undo/redo
         #   -previous item is "add character"
         #   -cursor is exactly where it was left off by the previous item
         #
-        # in addition, to get word-level undo, not element-level undo, we
-        # want to merge all spaces with the word preceding them, but stop
-        # merging when a new word begins. this is implemented by the
-        # following algorith:
+        # In addition, to get word-level undo, not element-level undo, we want
+        # to merge all spaces with the word preceding them, but stop merging
+        # when a new word begins. This is implemented by the following
+        # algorithm:
         #
         # lastUndo    char       merge
         # --------    -------    -----
@@ -3088,43 +3070,43 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
     def toNoteCmd(self, cs):
         self.convertTypeTo(NOTE, True)
 
-    # return True if we can undo
+    # Return True if we can undo
     def canUndo(self):
         return bool(
-            # undo history exists
+            # Undo history exists
             self.lastUndo
 
-            # and we either:
+            # And we either:
             and (
-                # are not in the middle of undo/redo
+                # Are not in the middle of undo/redo
                 not self.currentUndo or
 
-                # or are, but can still undo more
+                # Or are, but can still undo more
                 self.currentUndo.prev))
 
-    # return True if we can redo
+    # Return True if we can redo
     def canRedo(self):
         return bool(self.currentUndo)
 
     def addUndo(self, u):
         if self.currentUndo:
-            # new edit action while navigating undo history; throw away
-            # any undo history after current point
+            # New edit action while navigating undo history; throw away any undo
+            # history after current point.
 
             if self.currentUndo.prev:
-                # not at beginning of undo history; cut off the rest
+                # Not at beginning of undo history; cut off the rest.
                 self.currentUndo.prev.next = None
                 self.lastUndo = self.currentUndo.prev
             else:
-                # beginning of undo history; throw everything away
+                # Beginning of undo history; throw everything away.
                 self.firstUndo = None
                 self.lastUndo = None
 
             self.currentUndo = None
 
-            # we threw away an unknown number of undo items, so we must go
-            # through all of the remaining ones and recalculate how much
-            # memory is used
+            # We threw away an unknown number of undo items, so we must go
+            # through all the remaining ones and recalculate how much memory is
+            # used
             self.undoMemoryUsed = 0
 
             tmp = self.firstUndo
@@ -3134,7 +3116,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
                 tmp = tmp.next
 
         if not self.lastUndo:
-            # no undo history at all yet
+            # No undo history at all yet
             self.firstUndo = u
             self.lastUndo = u
         else:
@@ -3144,8 +3126,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
 
         self.undoMemoryUsed += u.memoryUsed()
 
-        # trim undo history until the estimated memory usage is small
-        # enough
+        # Trim undo history until the estimated memory usage is small enough
         while ((self.firstUndo is not self.lastUndo) and
                (self.undoMemoryUsed >= 5000000)):
 
@@ -3153,9 +3134,9 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             tmp.next.prev = None
             self.firstUndo = tmp.next
 
-            # it shouldn't be technically necessary to reset this, but it
-            # might make the GC's job easier, and helps detecting bugs if
-            # somebody somehow tries to access this later on
+            # It shouldn't be technically necessary to reset this, but it might
+            # make the GC's job easier, and helps detect bugs if somebody
+            # somehow tries to access this later on.
             tmp.next = None
 
             self.undoMemoryUsed -= tmp.memoryUsed()
@@ -3176,7 +3157,7 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         if not self.canUndo():
             return
 
-        # the action to undo
+        # The action to undo
         if self.currentUndo:
             u = self.currentUndo.prev
         else:
@@ -3198,16 +3179,16 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         self.clearMark()
         self.markChanged()
 
-    # check script for internal consistency. raises an AssertionError on
-    # errors. ONLY MEANT TO BE USED IN TEST CODE.
+    # Check script for internal consistency. Raises an AssertionError on errors.
+    # ONLY MEANT TO BE USED IN TEST CODE.
     def _validate(self):
-        # type of previous line, or None when a new element starts
+        # Type of previous line, or None when a new element starts.
         prevType = None
 
-        # there must be at least one line
+        # There must be at least one line
         assert len(self.lines) > 0
 
-        # cursor position must be valid
+        # Cursor position must be valid
         assert self.line >= 0
         assert self.line < len(self.lines)
         assert self.column >= 0
@@ -3216,14 +3197,14 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
         for ln in self.lines:
             tcfg = self.cfg.getType(ln.lt)
 
-            # lines should not contain invalid characters
+            # Lines should not contain invalid characters
             assert ln.text == util.toInputStr(ln.text)
 
-            # lines shouldn't be longer than the type's maximum width,
-            # unless the extra characters are all spaces
+            # Lines shouldn't be longer than the type's maximum width, unless
+            # the extra characters are all spaces.
             assert len(ln.text.rstrip(" ")) <= tcfg.width
 
-            # lines with LB_NONE linebreaks that end in a space should be
+            # Lines with LB_NONE linebreaks that end in a space should be
             # LB_SPACE instead
             if ln.lb == LB_NONE:
                 assert not ln.text.endswith(" ")
@@ -3236,17 +3217,17 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             else:
                 prevType = ln.lt
 
-# one line in a screenplay
+# One line in a screenplay
 class Line:
     def __init__(self, lb = LB_LAST, lt = ACTION, text = ""):
 
-        # line break type
+        # Line break type
         self.lb = lb
 
-        # line type
+        # Line type
         self.lt = lt
 
-        # text
+        # Text
         self.text = text
 
     def __str__(self):
@@ -3262,15 +3243,15 @@ class Line:
     def __eq__(self, other):
         return not self.__ne__(other)
 
-    # opposite of __str__. NOTE: only meant for storing data internally by
-    # the program! NOT USABLE WITH EXTERNAL INPUT DUE TO COMPLETE LACK OF
-    # ERROR CHECKING!
+    # Opposite of __str__. NOTE: only meant for storing data internally by the
+    # program! NOT USABLE WITH EXTERNAL INPUT DUE TO COMPLETE LACK OF ERROR
+    # CHECKING!
     @staticmethod
     def fromStr(s):
         return Line(config.char2lb(s[0]), config.char2lt(s[1]), s[2:])
 
-# used to keep track of selected area. this marks one of the end-points,
-# while the other one is the current position.
+# Used to keep track of selected area. this marks one of the end-points, while
+# the other one is the current position.
 class Mark:
     def __init__(self, line, column):
         self.line = line
@@ -3279,81 +3260,81 @@ class Mark:
     def __eq__(self, other):
         return (self.line == other.line) and (self.column == other.column)
 
-# data held in internal clipboard.
+# data held in internal clipboard
 class ClipData:
     def __init__(self):
 
-        # list of Line objects
+        # List of Line objects
         self.lines = []
 
-# stuff we need when handling commands in Screenplay.
+# Stuff we need when handling commands in Screenplay
 class CommandState:
 
-    # what to do about auto-completion
+    # What to do about auto-completion
     AC_DEL, AC_REDO, AC_KEEP = list(range(3))
 
     def __init__(self):
 
         self.doAutoComp = self.AC_DEL
 
-        # only used for inserting characters, in which case this is the
+        # Only used for inserting characters, in which case this is the
         # character to insert in a string form.
         self.char = None
 
-        # True if this is a movement command and we should set mark at the
-        # current position before moving (note that currently this is just
-        # set if shift is down)
+        # True if this is a movement command, and we should set mark at the
+        # current position before moving (note that currently this is just set
+        # if shift is down)
         self.mark = False
 
         # True if we need to make current line visible
         self.needsVisifying = True
 
-# keeps a collection of page numbers from a given screenplay, and allows
+# Keeps a collection of page numbers from a given screenplay, and allows
 # formatting of the list intelligently, e.g. "4-7, 9, 11-16".
 class PageList:
     def __init__(self, allPages):
-        # list of all pages in the screenplay, in the format returned by
+        # List of all pages in the screenplay, in the format returned by
         # Screenplay.getPageNumbers().
         self.allPages = allPages
 
         # key = page number (str), value = unused
         self.pages = {}
 
-    # add page to page list if it's not already there
+    # Add page to page list if it's not already there
     def addPage(self, page):
         self.pages[str(page)] = True
 
     def __len__(self):
         return len(self.pages)
 
-    # merge two PageLists
+    # Merge two PageLists
     def __iadd__(self, other):
         for pg in list(other.pages.keys()):
             self.addPage(pg)
 
         return self
 
-    # return textual representation of pages where consecutive pages are
-    # formatted as "x-y". example: "3, 5-8, 11".
+    # Return textual representation of pages where consecutive pages are
+    # formatted as "x-y". Example: "3, 5-8, 11".
     def __str__(self):
-        # one entry for each page from above, containing True if that page
-        # is contained in this PageList object
+        # One entry for each page from above, containing True if that page is
+        # contained in this PageList object.
         hasPage = []
 
         for p in self.allPages:
             hasPage.append(p in list(self.pages.keys()))
 
-        # finished string
+        # Finished string
         s = ""
 
-        # start index of current range, or -1 if no range in progress
+        # Start index of current range, or -1 if no range in progress.
         rangeStart = -1
 
         for i in range(len(self.allPages)):
             if rangeStart != -1:
                 if not hasPage[i]:
 
-                    # range ends
+                    # Range ends
 
                     if i != (rangeStart + 1):
                         s += "-%s" % self.allPages[i - 1]
@@ -3369,7 +3350,7 @@ class PageList:
 
         last = len(self.allPages) - 1
 
-        # finish last range if needed
+        # Finish last range if needed
         if (rangeStart != -1) and (rangeStart != last):
             s += "-%s" % self.allPages[last]
 

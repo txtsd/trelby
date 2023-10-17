@@ -3,7 +3,7 @@ import util
 
 import copy
 
-# keep track about one object's variables
+# Keep track about one object's variables
 class Vars:
     def __init__(self):
         self.cvars = []
@@ -12,15 +12,15 @@ class Vars:
         for v in self.cvars:
             yield v
 
-    # make various dictionaries pointing to the config variables.
+    # Make various dictionaries pointing to the config variables
     def makeDicts(self):
         self.all = self.getDict()
         self.color = self.getDict(ColorVar)
         self.numeric = self.getDict(NumericVar)
         self.stringLatin1 = self.getDict(StrLatin1Var)
 
-    # return dictionary containing given type of variable objects, or all
-    # if typeObj is None.
+    # Return dictionary containing given type of variable objects, or all if
+    # typeObj is None.
     def getDict(self, typeObj = None):
         tmp = {}
 
@@ -30,20 +30,19 @@ class Vars:
 
         return tmp
 
-    # get default value of a setting
+    # Get default value of a setting
     def getDefault(self, name):
         return self.all[name].defVal
 
-    # get minimum value of a numeric setting
+    # Get minimum value of a numeric setting
     def getMin(self, name):
         return self.numeric[name].minVal
 
-    # get maximum value of a numeric setting
+    # Get maximum value of a numeric setting
     def getMax(self, name):
         return self.numeric[name].maxVal
 
-    # get minimum and maximum value of a numeric setting as a (min,max)
-    # tuple.
+    # Get minimum and maximum value of a numeric setting as a (min,max) tuple
     def getMinMax(self, name):
         return (self.getMin(name), self.getMax(name))
 
@@ -51,8 +50,8 @@ class Vars:
         for it in self.cvars:
             setattr(obj, it.name, copy.deepcopy(it.defVal))
 
-    # transform string 's' (loaded from file) into a form suitable for
-    # load() to take.
+    # Transform string 's' (loaded from file) into a form suitable for load()
+    # to take
     @staticmethod
     def makeVals(s):
         tmp = util.fixNL(str(s)).split("\n")
@@ -115,9 +114,8 @@ class Vars:
         self.addVar(ListVar(*params))
 
 class ConfVar:
-    # name2 is the name to use while saving/loading the variable. if it's
-    # empty, the variable is not loaded/saved, i.e. is used only
-    # internally.
+    # name2 is the name to use while saving/loading the variable. If it's empty,
+    # the variable is not loaded/saved, i.e. is used only internally.
     def __init__(self, name, defVal, name2):
         self.name = name
         self.defVal = defVal
@@ -201,9 +199,8 @@ class StrUnicodeVar(ConfVar):
     def fromStr(self, vals, val, prefix):
         return val
 
-# binary string, can contain anything. characters outside of printable
-# ASCII (and \ itself) are encoded as \XX, where XX is the hex code of the
-# character.
+# Binary string, can contain anything. Characters outside printable ASCII
+# (and \ itself) are encoded as \XX, where XX is the hex code of the character.
 class StrBinaryVar(ConfVar):
     def __init__(self, name, defVal, name2):
         ConfVar.__init__(self, name, defVal, name2)
@@ -234,8 +231,8 @@ class ListVar(ConfVar):
     def __init__(self, name, defVal, name2, itemType):
         ConfVar.__init__(self, name, defVal, name2)
 
-        # itemType is an instance of one of the *Var classes, and is the
-        # type of item contained in the list.
+        # itemType is an instance of one of the *Var classes, and is the type of
+        # item contained in the list.
         self.itemType = itemType
 
     def toStr(self, val, prefix):
@@ -251,7 +248,7 @@ class ListVar(ConfVar):
         return s
 
     def fromStr(self, vals, val, prefix):
-        # 1000 is totally arbitrary, increase if needed
+        # 1000 is totally arbitrary, increase if needed.
         count = util.str2int(val, -1, -1, 1000)
         if count == -1:
             return copy.deepcopy(self.defVal)

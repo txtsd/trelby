@@ -40,8 +40,8 @@ class FindDlg(wx.Dialog):
 
         vsizer2 = wx.BoxSizer(wx.VERTICAL)
 
-        # wxGTK adds way more space by default than wxMSW between the
-        # items, have to adjust for that
+        # wxGTK adds way more space by default than wxMSW between the items
+        # have to adjust for that
         pad = 0
         if misc.isWindows:
             pad = 5
@@ -67,8 +67,8 @@ class FindDlg(wx.Dialog):
 
         self.elements = wx.CheckListBox(self, -1)
 
-        # sucky wxMSW doesn't support client data for checklistbox items,
-        # so we have to store it ourselves
+        # Sucky wxMSW doesn't support client data for checklistbox items, so we
+        # have to store it ourselves
         self.elementTypes = []
 
         for t in config.getTIs():
@@ -219,9 +219,9 @@ class FindDlg(wx.Dialog):
             self.moreButton.SetLabel("<<< Less")
             pos = self.elements.GetPosition()
 
-            # don't know of a way to get the vertical spacing of items in
-            # a wx.CheckListBox, so estimate it at font height + 5 pixels,
-            # which is close enough on everything I've tested.
+            # Don't know of a way to get the vertical spacing of items in a
+            # wx.CheckListBox, so estimate it at font height + 5 pixels, which
+            # is close enough on everything I've tested.
             h = pos.y + len(self.elementTypes) * \
                 (util.getFontHeight(self.elements.GetFont()) + 5) + 15
         else:

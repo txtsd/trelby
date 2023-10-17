@@ -85,7 +85,7 @@ class AutoCompletionDlg(wx.Dialog):
         t.enabled = bool(self.enabledCb.IsChecked())
         self.itemsEntry.Enable(t.enabled)
 
-        # this is cut&pasted from autocompletion.AutoCompletion.refresh,
+        # This is cut&pasted from autocompletion.AutoCompletion.refresh,
         # but I don't want to call that since it does all types, this does
         # just the changed one.
         tmp = []

@@ -4,16 +4,16 @@ import util
 
 import wx
 
-# NameArray, or None if not loaded
+# NameArray, or None if not loaded.
 nameArr = None
 
-# if not already loaded, read the name database from disk and store it.
-# returns False on errors.
+# If not already loaded, read the name database from disk and store it.
+# Returns False on errors.
 def readNames(frame):
     global nameArr
 
     if nameArr:
-        # already loaded
+        # Already loaded
         return True
 
     try:
@@ -171,8 +171,8 @@ class NamesDlg(wx.Dialog):
         if item == -1:
             return
 
-        # this seems to return column 0's text, which is lucky, because I
-        # don't see a way of getting other columns' texts...
+        # This seems to return column 0's text, which is lucky, because I don't
+        # see a way of getting other columns' texts.
         name = self.list.GetItemText(item)
 
         for ch in name:
@@ -248,8 +248,8 @@ class MyListCtrl(wx.ListCtrl):
         self.SetColumnWidth(0, 120)
         self.SetColumnWidth(1, 120)
 
-        # we can't use wx.LIST_AUTOSIZE since this is a virtual control,
-        # so calculate the size ourselves since we know the longest string
+        # We can't use wx.LIST_AUTOSIZE since this is a virtual control, so
+        # calculate the size ourselves since we know the longest string
         # possible.
         w = util.getTextExtent(self.GetFont(), "Female")[0] + 15
         self.SetColumnWidth(2, w)
@@ -266,10 +266,10 @@ class MyListCtrl(wx.ListCtrl):
         elif col == 2:
             return self.sex[nameArr.sex[n]]
 
-        # shouldn't happen
+        # Shouldn't happen
         return ""
 
-    # for some reason this must be overridden as well, otherwise we get
-    # assert failures under windows.
+    # For some reason this must be overridden as well, otherwise we get assert
+    # failures under windows.
     def OnGetItemImage(self, item):
         return -1

@@ -18,7 +18,7 @@ class TitlesDlg(wx.Dialog):
         self.cfg = cfg
         self.cfgGl = cfgGl
 
-        # whether some events are blocked
+        # Whether some events are blocked
         self.block = False
 
         self.setPage(0)
@@ -98,8 +98,7 @@ class TitlesDlg(wx.Dialog):
 
         vsizer.Add(hsizer, 0, wx.EXPAND | wx.TOP, 20)
 
-        # TODO: should use FlexGridSizer, like headersdlg, to get neater
-        # layout
+        # TODO: should use FlexGridSizer, like headersdlg, to get neater layout
 
         hsizerTop = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -161,8 +160,8 @@ class TitlesDlg(wx.Dialog):
 
         vsizer2 = wx.BoxSizer(wx.VERTICAL)
 
-        # wxGTK adds way more space by default than wxMSW between the
-        # items, have to adjust for that
+        # wxGTK adds way more space by default than wxMSW between the items
+        # Have to adjust for that
         pad = 0
         if misc.isWindows:
             pad = 5
@@ -200,7 +199,7 @@ class TitlesDlg(wx.Dialog):
 
         self.Bind(wx.EVT_LISTBOX, self.OnStringsLb, id=self.stringsLb.GetId())
 
-        # list of widgets that are specific to editing the selected string
+        # Llist of widgets that are specific to editing the selected string
         self.widList = [ self.textEntry, self.xEntry, self.alignCombo,
                          self.yEntry, self.fontCombo, self.sizeEntry,
                          self.boldCb, self.italicCb, self.underlinedCb ]
@@ -229,9 +228,9 @@ class TitlesDlg(wx.Dialog):
         tmp = pdf.generate(doc)
         gutil.showTempPDF(tmp, self.cfgGl, self)
 
-    # set given page. 'page' can be an invalid value.
+    # Set given page. 'page' can be an invalid value.
     def setPage(self, page):
-        # selected page index or -1
+        # Selected page index or -1
         self.pageIndex = -1
 
         if self.titles.pages:
@@ -240,7 +239,7 @@ class TitlesDlg(wx.Dialog):
             if (page >= 0) and (len(self.titles.pages) > page):
                 self.pageIndex = page
 
-        # selected string index or -1
+        # Selected string index or -1
         self.tsIndex = -1
 
         if self.pageIndex == -1:
@@ -252,8 +251,8 @@ class TitlesDlg(wx.Dialog):
     def OnKillFocus(self, event):
         self.OnMisc()
 
-        # if we don't call this, the spin entry on wxGTK gets stuck in
-        # some weird state
+        # If we don't call this, the spin entry on wxGTK gets stuck in some
+        # weird state.
         event.Skip()
 
     def OnStringsLb(self, event = None):
@@ -312,7 +311,7 @@ class TitlesDlg(wx.Dialog):
 
         self.updateGui()
 
-    # update page/string listboxes and selection
+    # Update page/string listboxes and selection
     def updateGui(self):
         self.stringsLb.Clear()
 
@@ -345,7 +344,7 @@ class TitlesDlg(wx.Dialog):
 
         self.previewCtrl.Refresh()
 
-    # update selected string stuff
+    # Update selected string stuff
     def updateStringGui(self):
         if self.tsIndex == -1:
             for w in self.widList:
@@ -437,17 +436,17 @@ class TitlesPreview(wx.Window):
     def OnPaint(self, event):
         dc = wx.BufferedPaintDC(self, self.screenBuf)
 
-        # widget size
+        # Widget size
         ww, wh = self.GetClientSize()
 
         dc.SetBrush(wx.Brush(self.GetBackgroundColour()))
         dc.SetPen(wx.Pen(self.GetBackgroundColour()))
         dc.DrawRectangle(0, 0, ww, wh)
 
-        # aspect ratio of paper
+        # Aspect ratio of paper
         aspect = self.cfg.paperWidth / self.cfg.paperHeight
 
-        # calculate which way we can best fit the paper on screen
+        # Calculate which way we can best fit the paper on screen
         h = wh
         w = int(aspect * wh)
 
@@ -455,7 +454,7 @@ class TitlesPreview(wx.Window):
             w = ww
             h = int(ww / aspect)
 
-        # offset of paper
+        # Offset of paper
         ox = (ww - w) // 2
         oy = (wh - h) // 2
 
@@ -469,7 +468,7 @@ class TitlesPreview(wx.Window):
             for i in range(len(page)):
                 ts = page[i]
 
-                # text height in mm
+                # Text height in mm
                 textHinMM = util.getTextHeight(ts.size)
 
                 textH = int((textHinMM / self.cfg.paperHeight) * h)
@@ -477,10 +476,9 @@ class TitlesPreview(wx.Window):
                 y = ts.y
 
                 for line in ts.items:
-                    # people may have empty lines in between non-empty
-                    # lines to achieve double spaced lines; don't draw a
-                    # rectangle for lines consisting of nothing but
-                    # whitespace
+                    # People may have empty lines in between non-empty lines to
+                    # achieve double-spaced lines; don't draw a rectangle for
+                    # lines consisting of nothing but whitespace
 
                     if line.strip():
                         textW = int((util.getTextWidth(line, ts.getStyle(),

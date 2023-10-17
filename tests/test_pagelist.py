@@ -1,9 +1,9 @@
 import screenplay as scr
 import u
 
-# test screenplay.PageList
+# Test screenplay.PageList
 
-# helper test function.
+# Helper test function.
 def ch(allPages, pages, res):
     pl = scr.PageList(allPages)
 
@@ -18,7 +18,7 @@ def testBasic():
     # "1" .. "119"
     allPages = [str(p) for p in range(120)[1:]]
 
-    # test basic stuff
+    # Test basic stuff
     ch([], [], "")
     ch(allPages, [], "")
     ch(allPages, [-42, 167], "")
@@ -29,7 +29,7 @@ def testBasic():
     ch(allPages, [6, 7, 8, 119], "6-8, 119")
     ch(allPages, [6, 7, 8, 118, 119], "6-8, 118-119")
 
-    # test that int/str makes no difference
+    # Test that int/str makes no difference
     ch(allPages, [1, 2, 3, 5, 7, 9, 42, 43, 44], "1-3, 5, 7, 9, 42-44")
     ch(allPages, ["1", "2", "3", "5", "7", "9", "42", "43", "44"],
        "1-3, 5, 7, 9, 42-44")

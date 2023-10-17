@@ -1,4 +1,4 @@
-# exception classes
+# Exception classes
 
 class TrelbyError(Exception):
     def __init__(self, msg):

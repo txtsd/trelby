@@ -5,7 +5,7 @@ import util
 
 import wx
 
-# The watermark tool dialog.
+# The watermark tool dialog
 class WatermarkDlg(wx.Dialog):
     # sp - screenplay object, from which to generate PDF
     # prefix - prefix name for the PDF files (unicode)
@@ -90,8 +90,8 @@ class WatermarkDlg(wx.Dialog):
 
         watermarks = set(watermarks)
 
-        # keep track of ids allocated so far, just on the off-chance we
-        # randomly allocated the same id twice
+        # Keep track of ids allocated so far, just on the off-chance we randomly
+        # allocated the same id twice.
         usedIds = set()
 
         if not directory:
@@ -113,7 +113,7 @@ class WatermarkDlg(wx.Dialog):
 
             ops = []
 
-            # almost-not-there gray
+            # Almost-not-there gray
             ops.append(pml.PDFOp("0.85 g"))
 
             if common:

@@ -20,7 +20,7 @@ class NameArray:
         # key = type name, value = integer id for that type
         self.typeId = {}
 
-        # type names indexed by their integer id
+        # Type names indexed by their integer id
         self.typeNamesById = []
 
     def append(self, name, type, sex):

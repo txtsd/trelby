@@ -3,7 +3,7 @@
 import u
 import util
 
-# test util stuff
+# Test util stuff
 
 def testReplace():
     u.init()

@@ -57,10 +57,10 @@ class LocationsDlg(wx.Dialog):
         self.fillGui()
 
     def OnOK(self, event):
-        # master list
+        # Master list
         ml = []
 
-        # sub-list
+        # Sub-list
         sl = []
 
         for i in range(self.locationsLb.GetCount()):
@@ -91,7 +91,7 @@ class LocationsDlg(wx.Dialog):
 
         locIdx = self.locationsLb.GetSelection()
 
-        # if user has selected a separator line, treat it as no selection
+        # If user has selected a separator line, treat it as no selection.
         if (locIdx != -1) and\
                (self.locationsLb.GetClientData(locIdx) == None):
             locIdx = -1
@@ -101,7 +101,7 @@ class LocationsDlg(wx.Dialog):
         for idx in selected:
             scene = self.scenesLb.GetClientData(idx)
 
-            # insert at selected position, or at the bottom if a new group
+            # Insert at selected position, or at the bottom if a new group.
             if locIdx != -1:
                 self.locationsLb.InsertItems([scene], locIdx)
                 self.locationsLb.SetClientData(locIdx, scene)
@@ -115,10 +115,10 @@ class LocationsDlg(wx.Dialog):
         if addSep:
             self.locationsLb.Append("-" * 40, None)
 
-        # we need these to be in sorted order, which they probably are,
-        # but wxwidgets documentation doesn't say that, so to be safe we
-        # sort it ourselves. and as tuples can't be sorted, we change it
-        # to a list first.
+        # We need these to be in sorted order, which they probably are, but
+        # wxwidgets documentation doesn't say that, so to be safe we sort it
+        # ourselves. And as tuples can't be sorted, we change it to a list
+        # first.
         selected = [it for it in selected]
         selected.sort()
 
@@ -141,10 +141,10 @@ class LocationsDlg(wx.Dialog):
         gutil.listBoxAdd(self.scenesLb, scene, scene)
         self.locationsLb.Delete(idx)
 
-        # was the last item we looked at a separator
+        # Was the last item we looked at a separator
         lastWasSep = False
 
-        # go through locations, remove first encountered double separator
+        # Go through locations, remove first encountered double separator
         # (appears when a location group is deleted completely)
         for i in range(self.locationsLb.GetCount()):
             cdata = self.locationsLb.GetClientData(i)
@@ -156,7 +156,7 @@ class LocationsDlg(wx.Dialog):
 
             lastWasSep = cdata == None
 
-        # if it goes completely empty, remove the single separator line
+        # If it goes completely empty, remove the single separator line.
         if (self.locationsLb.GetCount() == 1) and\
            (self.locationsLb.GetClientData(0) == None):
             self.locationsLb.Delete(0)
